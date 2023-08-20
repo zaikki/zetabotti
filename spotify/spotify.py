@@ -3,47 +3,79 @@ import os
 from .refresh import Refresh
 
 
-class FetchSong:
+class Spotify:
     def __init__(self):
         self.user_id = os.environ["SPOTIFY_USER_ID"]
         self.spotify_token = ""
 
     def spotify_fetch_track(self):
-        SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player/currently-playing'
-        
+        spotify_get_current_track_url = (
+            "https://api.spotify.com/v1/me/player/currently-playing"
+        )
+
         response = requests.get(
-            SPOTIFY_GET_CURRENT_TRACK_URL,
+            spotify_get_current_track_url,
             headers={
                 "Authorization": f"Bearer {self.spotify_token}",
-                "Content-Type": "application/json"
-            }
+                "Content-Type": "application/json",
+            },
         )
         json_resp = response.json()
+        if response.status_code != 200:
+            print("We are refreshing token with IF")
+            print(json_resp)
+            a.refresh()
 
-        track_id = json_resp['item']['id']
-        track_name = json_resp['item']['name']
-        artists = [artist for artist in json_resp['item']['artists']]
+        if json_resp["is_playing"] != True:
+            return "No songs"
+        else:
+            track_id = json_resp["item"]["id"]
+            track_name = json_resp["item"]["name"]
+            artists = [artist for artist in json_resp["item"]["artists"]]
 
-        link = json_resp['item']['external_urls']['spotify']
+            link = json_resp["item"]["external_urls"]["spotify"]
 
-        artist_names = ', '.join([artist['name'] for artist in artists])
+            artist_names = ", ".join([artist["name"] for artist in artists])
 
-        current_track_info = {
-            "id": track_id,
-            "track_name": track_name,
-            "artists": artist_names,
-            "link": link
-        }
+            current_track_info = {
+                "id": track_id,
+                "track_name": track_name,
+                "artists": artist_names,
+                "link": link,
+            }
 
-        return current_track_info
+            return current_track_info
+
+    def add_song_to_queue(self):
+        requested_song = (
+            "https://open.spotify.com/track/0HlhtIdbSWSKW9DU5sXeFX?si=ac855f6f794646f5"
+        )
+        splitted_request_song = requested_song.split("/")[-1].split("?")[0]
+        print(splitted_request_song)
+        spotify_song_queue_url = "https://api.spotify.com/v1/me/player/queue"
+
+        requested_song = f"?uri=spotify%3Atrack%3A{splitted_request_song}"
+        print(f"{spotify_song_queue_url}{requested_song}")
+
+        response = requests.post(
+            f"{spotify_song_queue_url}{requested_song}",
+            headers={
+                "Authorization": f"Bearer {self.spotify_token}",
+                "Content-Type": "application/json",
+            },
+        )
+
+        
+        return requested_song
+       
 
     def call_refresh(self):
-
         print("Refreshing token")
 
         refreshCaller = Refresh()
 
         self.spotify_token = refreshCaller.refresh()
+
 
 a = Refresh()
 a.refresh()

@@ -3,18 +3,20 @@ from urllib.parse import urlencode
 import base64
 import webbrowser
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-client_id="get_it_from_dev_spotify_website"
-client_secret="get_it_from_dev_spotify_website"
+client_id=os.getenv('SPOTIFY_CLIENT_ID')
+client_secret=os.getenv('SPOTIFY_CLIENT_SECRET')
 callback_uri="http://localhost:7777/callback"
-spotify_authorization_code="endcoded_client_id_client_secret"
+spotify_authorization_code=os.getenv("SPOTIFY_AUTHORIZATION_TOKEN")
 
 auth_headers = {
     "client_id": client_id,
     "response_type": "code",
     "redirect_uri": callback_uri,
-    "scope": "user-library-read user-read-currently-playing"
+    "scope": "user-library-read user-read-currently-playing user-modify-playback-state"
 }
 
 

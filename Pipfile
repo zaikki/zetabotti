@@ -6,5 +6,6 @@ name = "pypi"
 [packages]
 twitchio = "*"
 requests = "*"
+python-dotenv = "*"
 
 [dev-packages]
