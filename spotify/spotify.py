@@ -12,19 +12,30 @@ class Spotify:
         spotify_get_current_track_url = (
             "https://api.spotify.com/v1/me/player/currently-playing"
         )
-
-        response = requests.get(
-            spotify_get_current_track_url,
-            headers={
-                "Authorization": f"Bearer {self.spotify_token}",
-                "Content-Type": "application/json",
-            },
-        )
-        json_resp = response.json()
-        if response.status_code != 200:
-            print("We are refreshing token with IF")
-            print(json_resp)
+        try:
+            response = requests.get(
+                spotify_get_current_track_url,
+                headers={
+                    "Authorization": f"Bearer {self.spotify_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            print(e)
             a.refresh()
+            response = requests.get(
+                spotify_get_current_track_url,
+                headers={
+                    "Authorization": f"Bearer {self.spotify_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+        # if response.status_code != 200:
+        #     print("We are refreshing token with IF")
+        #     print(json_resp)
+        #     a.refresh()
+        print(response)
+        json_resp = response.json()
 
         if json_resp["is_playing"] != True:
             return "No songs"
