@@ -83,64 +83,6 @@ class Bot(commands.Bot):
         )
 
 
-# @bot.event
-# async def event_ready():
-#     "Called once when the bot goes online."
-#     print(f"{os.environ['BOT_NICK']} is online!")
-#     ws = bot._ws  # this is only needed to send messages within event_ready
-#     await ws.send_privmsg(os.environ["CHANNEL"], f"/me has landed!")
-
-
-# @bot.event
-# async def event_message(ctx):
-#     "Runs every time a message is sent in chat."
-
-#     # make sure the bot ignores itself and the streamer
-#     # if ctx.author.name.lower() == os.environ["BOT_NICK"].lower():
-#     #     return
-
-#     if "hello" in ctx.content.lower():
-#         await ctx.channel.send(f"Hi, @{ctx.author.name}!")
-
-#     await bot.handle_commands(ctx)
-
-#     # await ctx.channel.send(ctx.content)
-
-
-# @bot.command(name="test")
-# async def test(ctx):
-#     await ctx.send("test passed!")
-
-
-# @bot.command(name="song")
-# async def current_song(ctx):
-#     current_song = a.spotify_fetch_track()
-#     if isinstance(current_song, str):
-#         print(
-#             f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
-#         )
-#         await ctx.send(f"No songs playing!")
-#     else:
-#         spotify_current_artists = current_song["artists"]
-#         spotify_current_track_name = current_song["track_name"]
-#         print(
-#             f"Twitch user {ctx.author.name} fetched song: {spotify_current_artists} - {spotify_current_track_name}"
-#         )
-#         await ctx.send(
-#             f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
-#         )
-
-
-# @bot.command(name="addsong")
-# async def add_song(ctx):
-#     spotify_artists_name = "Artisti"
-#     spotify_track_name = "Maksaa"
-#     #added_song = a.add_song_to_queue()
-#     await ctx.send(
-#         f"Added song to playlist: {spotify_artists_name} - {spotify_track_name}"
-#     )
-
-
 if __name__ == "__main__":
     a = Spotify()
     a.call_refresh()
