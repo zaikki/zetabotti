@@ -1,6 +1,7 @@
 import os
 from twitchio.ext import commands
 from spotify.spotify import Spotify
+import pprint
 
 
 # set up the bot
@@ -25,6 +26,7 @@ class Bot(commands.Bot):
             prefix=os.environ["BOT_PREFIX"],
             initial_channels=[os.environ["CHANNEL"]],
         )
+        #print(a.spotify_response)
 
     async def event_ready(self):
         # Notify us when everything is ready!
@@ -57,13 +59,15 @@ class Bot(commands.Bot):
 
     @commands.command(name="song")
     async def current_song(self, ctx: commands.Context):
+        # token_expire = a.spotify_response["expires_in"]
+        print(a.spotify_response)
+        # if token_expire < 300:
+        a.call_refresh()
+        # else:
+        #     print(token_expire)
         current_song = a.spotify_fetch_track()
-        if isinstance(current_song, str):
-            print(
-                f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
-            )
-            await ctx.send(f"No songs playing!")
-        else:
+        print(current_song)
+        if current_song["is_playing"] is True:
             spotify_current_artists = current_song["artists"]
             spotify_current_track_name = current_song["track_name"]
             print(
@@ -72,9 +76,15 @@ class Bot(commands.Bot):
             await ctx.send(
                 f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
             )
+        else:
+            print(
+                f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
+            )
+            await ctx.send(f"No songs playing!")
 
     @commands.command(name="addsong")
     async def add_song(self, ctx: commands.Context):
+        a.call_refresh()
         spotify_artists_name = "Artisti"
         spotify_track_name = "Maksaa"
         # added_song = a.add_song_to_queue()

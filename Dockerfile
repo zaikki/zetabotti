@@ -75,7 +75,8 @@ ADD bot.py bot.py
 
 
 
-
+RUN apt-get -y update
+RUN apt-get -y upgrade
 RUN pip install requests twitchio
 RUN chmod +x bot.py bin/start.sh
 
