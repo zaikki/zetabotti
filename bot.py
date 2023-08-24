@@ -4,16 +4,6 @@ from spotify.spotify import Spotify
 import pprint
 
 
-# set up the bot
-# bot = commands.Bot(
-#     token=os.environ["TMI_TOKEN"],
-#     client_id=os.environ["CLIENT_ID"],
-#     nick=os.environ["BOT_NICK"],
-#     prefix=os.environ["BOT_PREFIX"],
-#     initial_channels=[os.environ["CHANNEL"]],
-# )
-
-
 class Bot(commands.Bot):
     def __init__(self):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
