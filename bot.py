@@ -16,7 +16,6 @@ class Bot(commands.Bot):
             prefix=os.environ["BOT_PREFIX"],
             initial_channels=[os.environ["CHANNEL"]],
         )
-        #print(a.spotify_response)
 
     async def event_ready(self):
         # Notify us when everything is ready!
@@ -49,14 +48,7 @@ class Bot(commands.Bot):
 
     @commands.command(name="song")
     async def current_song(self, ctx: commands.Context):
-        # token_expire = a.spotify_response["expires_in"]
-        print(a.spotify_response)
-        # if token_expire < 300:
-        a.call_refresh()
-        # else:
-        #     print(token_expire)
-        current_song = a.spotify_fetch_track()
-        print(current_song)
+        current_song = sp.spotify_current_track()
         if current_song["is_playing"] is True:
             spotify_current_artists = current_song["artists"]
             spotify_current_track_name = current_song["track_name"]
@@ -73,18 +65,26 @@ class Bot(commands.Bot):
             await ctx.send(f"No songs playing!")
 
     @commands.command(name="addsong")
-    async def add_song(self, ctx: commands.Context):
-        a.call_refresh()
-        spotify_artists_name = "Artisti"
-        spotify_track_name = "Maksaa"
-        # added_song = a.add_song_to_queue()
-        await ctx.send(
-            f"Added song to playlist: {spotify_artists_name} - {spotify_track_name}"
-        )
+    async def add_song(self, ctx: commands.Context, song_request_from_user):
+        if song_request_from_user.startswith("https://open.spotify.com/track/"):
+            song_info_request = sp.spotify_get_song_info(song_request_from_user)
+            sp.spotify_add_song_to_queue(song_request_from_user)
+            spotify_artists_name = song_info_request["artists"]
+            spotify_track_name = song_info_request["track_name"]
+            await ctx.send(
+                f"Added song to playlist: {spotify_artists_name} - {spotify_track_name}"
+            )
+        else:
+            await ctx.send(
+                "We do not support currently that format, please use from Spotify: Share --> Copy Song Link"
+            )
+
+    def get_args(self, ctx):
+        if self.has_args(ctx):
+            return self.clean_message(ctx)
 
 
 if __name__ == "__main__":
-    a = Spotify()
-    a.call_refresh()
     bot = Bot()
+    sp = Spotify()
     bot.run()

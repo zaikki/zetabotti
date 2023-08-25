@@ -1,38 +1,17 @@
-import requests
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 import os
-from .refresh import Refresh
+
+SCOPE = "user-library-read user-read-currently-playing user-modify-playback-state"
 
 
 class Spotify:
+    # init method or constructor
     def __init__(self):
-        self.user_id = os.environ["SPOTIFY_USER_ID"]
-        self.spotify_token = ""
-        self.spotify_response = ""
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=SCOPE))
 
-    def spotify_fetch_track(self):
-        spotify_get_current_track_url = (
-            "https://api.spotify.com/v1/me/player/currently-playing"
-        )
-        try:
-            response = requests.get(
-                spotify_get_current_track_url,
-                headers={
-                    "Authorization": f"Bearer {self.spotify_token}",
-                    "Content-Type": "application/json",
-                },
-            )
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
-            print(e)
-            self.call_refresh()
-            response = requests.get(
-                spotify_get_current_track_url,
-                headers={
-                    "Authorization": f"Bearer {self.spotify_token}",
-                    "Content-Type": "application/json",
-                },
-            )
-        json_resp = response.json()
-
+    def spotify_current_track(self):
+        json_resp = self.sp.current_user_playing_track()
         is_playing = json_resp["is_playing"]
         track_id = json_resp["item"]["id"]
         track_name = json_resp["item"]["name"]
@@ -49,32 +28,24 @@ class Spotify:
 
         return current_track_info
 
-    def add_song_to_queue(self):
-        requested_song = (
-            "https://open.spotify.com/track/0HlhtIdbSWSKW9DU5sXeFX?si=ac855f6f794646f5"
-        )
-        splitted_request_song = requested_song.split("/")[-1].split("?")[0]
-        print(splitted_request_song)
-        spotify_song_queue_url = "https://api.spotify.com/v1/me/player/queue"
-        requested_song = f"?uri=spotify%3Atrack%3A{splitted_request_song}"
-        print(f"{spotify_song_queue_url}{requested_song}")
+    def spotify_add_song_to_queue(self, song_request_from_user):
+        self.sp.add_to_queue(song_request_from_user)
+        added_song = song_request_from_user
+        return added_song
 
-        response = requests.post(
-            f"{spotify_song_queue_url}{requested_song}",
-            headers={
-                "Authorization": f"Bearer {self.spotify_token}",
-                "Content-Type": "application/json",
-            },
-        )
-        return requested_song
-       
+    def spotify_get_song_info(self, song):
+        json_resp = self.sp.track(song)
+        artists = [artist["name"] for artist in json_resp["album"]["artists"]]
+        track_id = json_resp["id"]
+        track_name = json_resp["name"]
+        link = json_resp["external_urls"]["spotify"]
+        artist_names = ", ".join([artist for artist in artists])
 
-    def call_refresh(self):
-        print("Refreshing token")
-        refreshCaller = Refresh()
-        self.spotify_token, self.spotify_response = refreshCaller.refresh()
-        
+        track_info = {
+            "id": track_id,
+            "track_name": track_name,
+            "artists": artist_names,
+            "link": link,
+        }
 
-
-a = Refresh()
-a.refresh()
+        return track_info

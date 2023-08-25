@@ -7,5 +7,6 @@ name = "pypi"
 twitchio = "*"
 requests = "*"
 python-dotenv = "*"
+spotipy = "*"
 
 [dev-packages]
