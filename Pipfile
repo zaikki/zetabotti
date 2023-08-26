@@ -8,5 +8,6 @@ twitchio = "*"
 requests = "*"
 python-dotenv = "*"
 spotipy = "*"
+requests-oauthlib = "*"
 
 [dev-packages]

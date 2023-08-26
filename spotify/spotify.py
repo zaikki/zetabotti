@@ -2,13 +2,22 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
 
-SCOPE = "user-library-read user-read-currently-playing user-modify-playback-state"
+
+SCOPE = "user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state"
 
 
 class Spotify:
     # init method or constructor
     def __init__(self):
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=SCOPE))
+        self.sp = spotipy.Spotify(
+            auth_manager=SpotifyOAuth(
+                scope=SCOPE,
+                open_browser=False,
+                redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                show_dialog=True,
+                cache_path=".token.txt",
+            )
+        )
 
     def spotify_current_track(self):
         json_resp = self.sp.current_user_playing_track()

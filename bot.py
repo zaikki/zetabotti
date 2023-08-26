@@ -1,7 +1,6 @@
 import os
 from twitchio.ext import commands
 from spotify.spotify import Spotify
-import pprint
 
 
 class Bot(commands.Bot):
@@ -71,8 +70,9 @@ class Bot(commands.Bot):
             sp.spotify_add_song_to_queue(song_request_from_user)
             spotify_artists_name = song_info_request["artists"]
             spotify_track_name = song_info_request["track_name"]
+            print(f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}")
             await ctx.send(
-                f"Added song to playlist: {spotify_artists_name} - {spotify_track_name}"
+                f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
             )
         else:
             await ctx.send(
