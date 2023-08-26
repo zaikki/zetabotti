@@ -8,7 +8,7 @@ ADD bin/ bin/
 ADD spotify/ spotify/
 # ADD .env .env
 ADD bot.py bot.py
-ADD token.txt token.txt
+ADD .token.txt .token.txt
 # RUN ls --recursive
 
 RUN apt-get -y update
