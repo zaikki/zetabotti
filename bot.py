@@ -1,6 +1,11 @@
 import os
 from twitchio.ext import commands
+
+# import twitchio
 from spotify.spotify import Spotify
+import requests
+
+STREAMER_CHANNEL = os.environ["CHANNEL"]
 
 
 class Bot(commands.Bot):
@@ -13,7 +18,7 @@ class Bot(commands.Bot):
             client_id=os.environ["CLIENT_ID"],
             nick=os.environ["BOT_NICK"],
             prefix=os.environ["BOT_PREFIX"],
-            initial_channels=[os.environ["CHANNEL"]],
+            initial_channels=[STREAMER_CHANNEL],
         )
 
     async def event_ready(self):
@@ -22,6 +27,30 @@ class Bot(commands.Bot):
         print(f"Logged in as | {self.nick}")
         print(f"User id is | {self.user_id}")
 
+    def get_args(self, ctx):
+        if self.has_args(ctx):
+            return self.clean_message(ctx)
+
+    def check_if_channel_is_live(self, channel_name):
+        contents = requests.get(f"https://www.twitch.tv/{channel_name}").content.decode(
+            "utf-8"
+        )
+        if "isLiveBroadcast" in contents:
+            return True
+        else:
+            return False
+
+    async def send_channel_offline_notification(self, message):
+        return await message.channel.send(
+            f"Channel is offline! Some commands are disabled like !song and !addsong"
+        )
+
+    async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
+        if ctx.author.display_name == STREAMER_CHANNEL:
+            print(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
+        else:
+            print(f"Nasty pleb: {ctx.author.display_name}")
+
     async def event_message(self, message):
         # Messages with echo set to True are messages sent by the bot...
         # For now we just want to ignore them...
@@ -29,11 +58,27 @@ class Bot(commands.Bot):
             return
 
         # Print the contents of our message to console...
-        print(message.content)
+        print(f"{message.author.name}: {message.content}")
+
+        # user = twitchio.SearchUser(http="https://api.twitch.tv/helix/search/channels",data={id: os.environ["STREAMER_USER_ID"]})
+        # print(user)
+        # await self.fetch_channels([os.environ["CHANNEL"]])
 
         # Since we have commands and are overriding the default `event_message`
         # We must let the bot know we want to handle and invoke our commands...
-        await self.handle_commands(message)
+        is_channel_live = self.check_if_channel_is_live(STREAMER_CHANNEL)
+        try:
+            if message.author.name == STREAMER_CHANNEL:
+                print(f"User is broadcaster so allowing by pass")
+                await self.handle_commands(message)
+            elif (is_channel_live is False) and message.content.startswith("!"):
+                print(f"{STREAMER_CHANNEL} is NOT live")
+                await self.send_channel_offline_notification(message)
+            elif (is_channel_live is True) and message.content.startswith("!"):
+                print(f"{STREAMER_CHANNEL} is live")
+                await self.handle_commands(message)
+        except Exception as e:
+            print(f"An exception occurred: {e}")
 
     @commands.command()
     async def hello(self, ctx: commands.Context):
@@ -44,6 +89,10 @@ class Bot(commands.Bot):
         # Send a hello back!
         # Sending a reply back to the channel is easy... Below is an example.
         await ctx.send(f"Hello {ctx.author.name}!")
+
+    @commands.command(name="songqueue")
+    async def song_queue_on_off(self, ctx: commands.Context, on_off):
+        await self.turn_off_song_queue(ctx, on_off)
 
     @commands.command(name="song")
     async def current_song(self, ctx: commands.Context):
@@ -70,7 +119,9 @@ class Bot(commands.Bot):
             sp.spotify_add_song_to_queue(song_request_from_user)
             spotify_artists_name = song_info_request["artists"]
             spotify_track_name = song_info_request["track_name"]
-            print(f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}")
+            print(
+                f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+            )
             await ctx.send(
                 f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
             )
@@ -78,10 +129,6 @@ class Bot(commands.Bot):
             await ctx.send(
                 "We do not support currently that format, please use from Spotify: Share --> Copy Song Link"
             )
-
-    def get_args(self, ctx):
-        if self.has_args(ctx):
-            return self.clean_message(ctx)
 
 
 if __name__ == "__main__":
