@@ -27,9 +27,9 @@ class Bot(commands.Bot):
         print(f"Logged in as | {self.nick}")
         print(f"User id is | {self.user_id}")
 
-    def get_args(self, ctx):
-        if self.has_args(ctx):
-            return self.clean_message(ctx)
+    # def get_args(self, ctx):
+    #     if self.has_args(ctx):
+    #         return self.clean_message(ctx)
 
     def check_if_channel_is_live(self, channel_name):
         contents = requests.get(f"https://www.twitch.tv/{channel_name}").content.decode(
@@ -112,11 +112,19 @@ class Bot(commands.Bot):
             )
             await ctx.send(f"No songs playing!")
 
+    @commands.command(name="search")
+    async def search_song(self, ctx: commands.Context, *args):
+        arguments = args
+        #arguments = ', '.join(args)
+        
+        sp.spotify_search_song(arguments)
+        #await ctx.send(f'{len(args)} arguments: {arguments}')
+
     @commands.command(name="addsong")
-    async def add_song(self, ctx: commands.Context, song_request_from_user):
-        if song_request_from_user.startswith("https://open.spotify.com/track/"):
-            song_info_request = sp.spotify_get_song_info(song_request_from_user)
-            que_return = sp.spotify_add_song_to_queue(song_request_from_user)
+    async def add_song(self, ctx: commands.Context, args):
+        if args.startswith("https://open.spotify.com/track/"):
+            song_info_request = sp.spotify_get_song_info(args)
+            que_return = sp.spotify_add_song_to_queue(args)
             print(que_return)
             spotify_artists_name = song_info_request["artists"]
             spotify_track_name = song_info_request["track_name"]
