@@ -21,6 +21,7 @@ class Spotify:
 
     def spotify_current_track(self):
         json_resp = self.sp.current_user_playing_track()
+        current_track_info = {}
         try: 
             is_playing = json_resp["is_playing"]
             track_id = json_resp["item"]["id"]
@@ -41,15 +42,18 @@ class Spotify:
         return current_track_info
 
     def spotify_add_song_to_queue(self, song_request_from_user):
+        added_song = {}
         try:
             self.sp.add_to_queue(song_request_from_user)
             added_song = song_request_from_user
         except Exception as e:
             print(f"An exception occurred: {e}")
+            return e
         return added_song
 
     def spotify_get_song_info(self, song):
         json_resp = self.sp.track(song)
+        track_info = {}
         try:
             artists = [artist["name"] for artist in json_resp["album"]["artists"]]
             track_id = json_resp["id"]

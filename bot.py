@@ -97,7 +97,7 @@ class Bot(commands.Bot):
     @commands.command(name="song")
     async def current_song(self, ctx: commands.Context):
         current_song = sp.spotify_current_track()
-        if current_song["is_playing"] is True:
+        if (current_song is not None) and (current_song["is_playing"] is True):
             spotify_current_artists = current_song["artists"]
             spotify_current_track_name = current_song["track_name"]
             print(
@@ -116,7 +116,8 @@ class Bot(commands.Bot):
     async def add_song(self, ctx: commands.Context, song_request_from_user):
         if song_request_from_user.startswith("https://open.spotify.com/track/"):
             song_info_request = sp.spotify_get_song_info(song_request_from_user)
-            sp.spotify_add_song_to_queue(song_request_from_user)
+            que_return = sp.spotify_add_song_to_queue(song_request_from_user)
+            print(que_return)
             spotify_artists_name = song_info_request["artists"]
             spotify_track_name = song_info_request["track_name"]
             print(
