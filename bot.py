@@ -1,10 +1,10 @@
 import os
+import logging
 from twitchio.ext import commands
-
-# import twitchio
 from spotify.spotify import Spotify
-import requests
 
+
+logging.basicConfig(level=logging.INFO)
 STREAMER_CHANNEL = os.environ["CHANNEL"]
 
 
@@ -24,18 +24,14 @@ class Bot(commands.Bot):
     async def event_ready(self):
         # Notify us when everything is ready!
         # We are logged in and ready to chat and use commands...
-        print(f"Logged in as | {self.nick}")
-        print(f"User id is | {self.user_id}")
+        logger.info(f"Logged in as | {self.nick}")
+        logger.info(f"User id is | {self.user_id}")
 
-    # def get_args(self, ctx):
-    #     if self.has_args(ctx):
-    #         return self.clean_message(ctx)
-
-    def check_if_channel_is_live(self, channel_name):
-        contents = requests.get(f"https://www.twitch.tv/{channel_name}").content.decode(
-            "utf-8"
+    def check_if_channel_is_live(self, twitch_channels):
+        streamer_channel = list(
+            filter(lambda obj: (obj.display_name == STREAMER_CHANNEL), twitch_channels)
         )
-        if "isLiveBroadcast" in contents:
+        if streamer_channel[0].live == True:
             return True
         else:
             return False
@@ -47,48 +43,31 @@ class Bot(commands.Bot):
 
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
         if ctx.author.display_name == STREAMER_CHANNEL:
-            print(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
+            logger.info(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
         else:
-            print(f"Nasty pleb: {ctx.author.display_name}")
+            logger.info(f"Nasty pleb: {ctx.author.display_name}")
 
     async def event_message(self, message):
         # Messages with echo set to True are messages sent by the bot...
         # For now we just want to ignore them...
-        if message.echo:
+        if message.echo or message.author.display_name == "StreamElements":
             return
-
-        # Print the contents of our message to console...
-        print(f"{message.author.name}: {message.content}")
-
-        # user = twitchio.SearchUser(http="https://api.twitch.tv/helix/search/channels",data={id: os.environ["STREAMER_USER_ID"]})
-        # print(user)
-        # await self.fetch_channels([os.environ["CHANNEL"]])
-
-        # Since we have commands and are overriding the default `event_message`
-        # We must let the bot know we want to handle and invoke our commands...
-        is_channel_live = self.check_if_channel_is_live(STREAMER_CHANNEL)
+        
+        logger.info(f"{message.author.name}: {message.content}")
+        twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
+        
+        is_channel_live = self.check_if_channel_is_live(twitch_channels)
         try:
             if message.author.name == STREAMER_CHANNEL:
-                print(f"User is broadcaster so allowing by pass")
+                #logger.info(f"User is broadcaster so allowing by pass")
                 await self.handle_commands(message)
             elif (is_channel_live is False) and message.content.startswith("!"):
-                print(f"{STREAMER_CHANNEL} is NOT live")
+                logger.info(f"{STREAMER_CHANNEL} is NOT live")
                 await self.send_channel_offline_notification(message)
             elif (is_channel_live is True) and message.content.startswith("!"):
-                print(f"{STREAMER_CHANNEL} is live")
                 await self.handle_commands(message)
         except Exception as e:
-            print(f"An exception occurred: {e}")
-
-    @commands.command()
-    async def hello(self, ctx: commands.Context):
-        # Here we have a command hello, we can invoke our command with our prefix and command name
-        # e.g ?hello
-        # We can also give our commands aliases (different names) to invoke with.
-
-        # Send a hello back!
-        # Sending a reply back to the channel is easy... Below is an example.
-        await ctx.send(f"Hello {ctx.author.name}!")
+            logger.info(f"An exception occurred: {e}")
 
     @commands.command(name="songqueue")
     async def song_queue_on_off(self, ctx: commands.Context, on_off):
@@ -100,47 +79,52 @@ class Bot(commands.Bot):
         if (current_song is not None) and (current_song["is_playing"] is True):
             spotify_current_artists = current_song["artists"]
             spotify_current_track_name = current_song["track_name"]
-            print(
+            logger.info(
                 f"Twitch user {ctx.author.name} fetched song: {spotify_current_artists} - {spotify_current_track_name}"
             )
             await ctx.send(
                 f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
             )
         else:
-            print(
+            logger.info(
                 f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
             )
             await ctx.send(f"No songs playing!")
 
     @commands.command(name="search")
     async def search_song(self, ctx: commands.Context, *args):
-        arguments = args
-        #arguments = ', '.join(args)
-        
-        sp.spotify_search_song(arguments)
-        #await ctx.send(f'{len(args)} arguments: {arguments}')
+        result = sp.spotify_search_song(args)
+        await ctx.send(result)
 
     @commands.command(name="addsong")
-    async def add_song(self, ctx: commands.Context, args):
-        if args.startswith("https://open.spotify.com/track/"):
-            song_info_request = sp.spotify_get_song_info(args)
-            que_return = sp.spotify_add_song_to_queue(args)
-            print(que_return)
+    async def add_song(self, ctx: commands.Context, *args):
+        if "https://open.spotify.com/track/" in args[0]:
+            song_info_request = sp.spotify_get_song_info(args[0])
+            sp.spotify_add_song_to_queue(args[0])
             spotify_artists_name = song_info_request["artists"]
             spotify_track_name = song_info_request["track_name"]
-            print(
+            logger.info(
                 f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
             )
             await ctx.send(
                 f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
             )
         else:
+            result = sp.spotify_search_song(args)
+            song_info_request = sp.spotify_get_song_info(result)
+            sp.spotify_add_song_to_queue(result)
+            spotify_artists_name = song_info_request["artists"]
+            spotify_track_name = song_info_request["track_name"]
+            logger.info(
+                f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+            )
             await ctx.send(
-                "We do not support currently that format, please use from Spotify: Share --> Copy Song Link"
+                f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
             )
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
     bot = Bot()
     sp = Spotify()
     bot.run()
