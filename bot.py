@@ -91,9 +91,10 @@ class Bot(commands.Bot):
             )
             await ctx.send(f"No songs playing!")
 
-    @commands.command(name="search")
+    @commands.command(name="searchsong")
     async def search_song(self, ctx: commands.Context, *args):
-        result = sp.spotify_search_song(args)
+        search_result = sp.spotify_search_song(args)
+        result = f"https://open.spotify.com/track/{search_result}"
         await ctx.send(result)
 
     @commands.command(name="addsong")
