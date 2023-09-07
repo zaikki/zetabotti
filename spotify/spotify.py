@@ -5,7 +5,7 @@ import logging
 
 SCOPE = "user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-read-private"
 # logger = logging.getLogger('bot_logger')
-logger = logging.getLogger(__name__ + '.spotify')
+logger = logging.getLogger(__name__ + ".spotify")
 
 
 class Spotify:
@@ -23,6 +23,8 @@ class Spotify:
 
     def spotify_current_track(self):
         json_resp = self.sp.current_user_playing_track()
+        if json_resp == None:
+            return
         current_track_info = {}
         try:
             is_playing = json_resp["is_playing"]
@@ -73,14 +75,13 @@ class Spotify:
             logger.info(f"An exception occurred: {e}")
 
         return track_info
-    
 
     def spotify_search_song(self, arq):
         song_request = " ".join(arq)
         result = self.sp.search(q=f"{song_request}")
         if len(result["tracks"]["items"]) == 0:
-            logger.info("No vittu ei löytyny")
-            return "We did not find any songs!"
+            logger.info(f"We did not find any songs! With request {song_request}")
+            return f"We did not find any songs! With request {song_request}"
         else:
             logger.info(f"Found song: {result['tracks']['items'][0]['id']}")
             return result["tracks"]["items"][0]["id"]

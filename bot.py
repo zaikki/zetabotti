@@ -52,14 +52,14 @@ class Bot(commands.Bot):
         # For now we just want to ignore them...
         if message.echo or message.author.display_name == "StreamElements":
             return
-        
+
         logger.info(f"{message.author.name}: {message.content}")
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
-        
+
         is_channel_live = self.check_if_channel_is_live(twitch_channels)
         try:
             if message.author.name == STREAMER_CHANNEL:
-                #logger.info(f"User is broadcaster so allowing by pass")
+                # logger.info(f"User is broadcaster so allowing by pass")
                 await self.handle_commands(message)
             elif (is_channel_live is False) and message.content.startswith("!"):
                 logger.info(f"{STREAMER_CHANNEL} is NOT live")
@@ -85,6 +85,9 @@ class Bot(commands.Bot):
             await ctx.send(
                 f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
             )
+        elif current_song == None:
+            logger.info(f"Spotify not running or playing songs.")
+            await ctx.send(f"Spotify not running or playing songs.")
         else:
             logger.info(
                 f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
