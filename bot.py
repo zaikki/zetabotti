@@ -144,6 +144,11 @@ class Bot(commands.Bot):
     #             f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
     #         )
 
+
+    # async def refu_points():
+    #     await twitchio.CustomRewardRedemption.refund(token=USER_OAUTH_TOKEN)
+    #     #await twitchio.CustomRewardRedemption.refund(token=USER_OAUTH_TOKEN)
+
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
 
@@ -158,7 +163,8 @@ class Bot(commands.Bot):
 
     @CLIENT.event()
     async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-        if event.reward.id == TWITCH_SPOTIFY_REWARD_ID:
+        twitch_channels = await bot.search_channels(query=STREAMER_CHANNEL)
+        if (event.reward.id == TWITCH_SPOTIFY_REWARD_ID) and (bot.check_if_channel_is_live(twitch_channels) == True):
             author_name = event.user.name
             arg = event.input
             if "https://open.spotify.com/track/" in arg:
@@ -184,6 +190,12 @@ class Bot(commands.Bot):
                 await bot.send_result_to_chat(
                     data=f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
                 )
+        elif (event.reward.id == TWITCH_SPOTIFY_REWARD_ID) and (bot.check_if_channel_is_live(twitch_channels) == False):
+            await bot.send_result_to_chat(
+                    data=f"Channel not live"
+                )
+            #await bot.refu_points()
+            #await twitchio.CustomRewardRedemption.refund(token=USER_OAUTH_TOKEN)
         else:
             logger.info(
                 f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
