@@ -76,8 +76,10 @@ class Spotify:
 
         return track_info
 
-    def spotify_search_song(self, arq):
-        song_request = " ".join(arq)
+    def spotify_search_song(self, song_request):
+        if isinstance(song_request, tuple):
+            song_request = " ".join(song_request)
+        print(song_request)
         result = self.sp.search(q=f"{song_request}")
         if len(result["tracks"]["items"]) == 0:
             logger.info(f"We did not find any songs! With request {song_request}")

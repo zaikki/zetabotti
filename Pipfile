@@ -9,5 +9,8 @@ requests = "*"
 python-dotenv = "*"
 spotipy = "*"
 requests-oauthlib = "*"
+websockets = "*"
+websocket-client = "*"
+websocket = "*"
 
 [dev-packages]

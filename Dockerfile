@@ -12,5 +12,6 @@ RUN pip install requests twitchio spotipy
 RUN chmod +x bot.py bin/start.sh
 
 EXPOSE 7777
+EXPOSE 1337
 
 ENTRYPOINT ["bash", "bin/start.sh"]

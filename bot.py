@@ -1,11 +1,23 @@
 import os
 import logging
-from twitchio.ext import commands
+import twitchio
+from twitchio.ext import commands, pubsub
 from spotify.spotify import Spotify
 
 
 logging.basicConfig(level=logging.INFO)
 STREAMER_CHANNEL = os.environ["CHANNEL"]
+STREAMER_CHANNEL_ID = os.environ["STREAMER_USER_ID"]
+TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
+CLIENT_ID = os.environ["CLIENT_ID"]
+BOT_NICK = os.environ["BOT_NICK"]
+BOT_PREFIX = os.environ["BOT_PREFIX"]
+
+TOKEN = os.environ["TMI_TOKEN"]
+USER_OAUTH_TOKEN = os.environ["ACCESS_TOKEN"]
+USER_CHANNEL_ID = int(STREAMER_CHANNEL_ID)
+CLIENT = twitchio.Client(token=TOKEN)
+CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
 
 class Bot(commands.Bot):
@@ -14,10 +26,10 @@ class Bot(commands.Bot):
         # prefix can be a callable, which returns a list of strings or a string...
         # initial_channels can also be a callable which returns a list of strings...
         super().__init__(
-            token=os.environ["TMI_TOKEN"],
-            client_id=os.environ["CLIENT_ID"],
-            nick=os.environ["BOT_NICK"],
-            prefix=os.environ["BOT_PREFIX"],
+            token=TOKEN,
+            client_id=CLIENT_ID,
+            nick=BOT_NICK,
+            prefix=BOT_PREFIX,
             initial_channels=[STREAMER_CHANNEL],
         )
 
@@ -26,6 +38,12 @@ class Bot(commands.Bot):
         # We are logged in and ready to chat and use commands...
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
+
+        topics = [
+            pubsub.channel_points(USER_OAUTH_TOKEN)[USER_CHANNEL_ID],
+        ]
+        await CLIENT.pubsub.subscribe_topics(topics)
+        await CLIENT.start()
 
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
@@ -100,30 +118,75 @@ class Bot(commands.Bot):
         result = f"https://open.spotify.com/track/{search_result}"
         await ctx.send(result)
 
-    @commands.command(name="addsong")
-    async def add_song(self, ctx: commands.Context, *args):
-        if "https://open.spotify.com/track/" in args[0]:
-            song_info_request = sp.spotify_get_song_info(args[0])
-            sp.spotify_add_song_to_queue(args[0])
-            spotify_artists_name = song_info_request["artists"]
-            spotify_track_name = song_info_request["track_name"]
-            logger.info(
-                f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
-            )
-            await ctx.send(
-                f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
-            )
+    # @commands.command(name="addsong")
+    # async def add_song(self, ctx: commands.Context, *args):
+    #     if "https://open.spotify.com/track/" in args[0]:
+    #         song_info_request = sp.spotify_get_song_info(args[0])
+    #         sp.spotify_add_song_to_queue(args[0])
+    #         spotify_artists_name = song_info_request["artists"]
+    #         spotify_track_name = song_info_request["track_name"]
+    #         logger.info(
+    #             f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+    #         )
+    #         await ctx.send(
+    #             f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
+    #         )
+    #     else:
+    #         result = sp.spotify_search_song(args)
+    #         song_info_request = sp.spotify_get_song_info(result)
+    #         sp.spotify_add_song_to_queue(result)
+    #         spotify_artists_name = song_info_request["artists"]
+    #         spotify_track_name = song_info_request["track_name"]
+    #         logger.info(
+    #             f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+    #         )
+    #         await ctx.send(
+    #             f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
+    #         )
+
+    async def send_result_to_chat(self, data):
+        await self.streamer_channel.send(data)
+
+    async def event_channel_joined(self, channel: twitchio.Channel):
+        if channel.name == STREAMER_CHANNEL:
+            self.streamer_channel = channel
+            self.streamer_id = STREAMER_CHANNEL_ID
+
+    @CLIENT.event()
+    async def event_pubsub_bits(event: pubsub.PubSubBitsMessage):
+        pass  # do stuff on bit redemptions
+
+    @CLIENT.event()
+    async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+        if event.reward.id == TWITCH_SPOTIFY_REWARD_ID:
+            author_name = event.user.name
+            arg = event.input
+            if "https://open.spotify.com/track/" in arg:
+                song_info_request = sp.spotify_get_song_info(arg)
+                sp.spotify_add_song_to_queue(arg)
+                spotify_artists_name = song_info_request["artists"]
+                spotify_track_name = song_info_request["track_name"]
+                logger.info(
+                    f"Twitch user {author_name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+                )
+                await bot.send_result_to_chat(
+                    data=f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
+                )
+            else:
+                result = sp.spotify_search_song(arg)
+                song_info_request = sp.spotify_get_song_info(result)
+                sp.spotify_add_song_to_queue(result)
+                spotify_artists_name = song_info_request["artists"]
+                spotify_track_name = song_info_request["track_name"]
+                logger.info(
+                    f"Twitch user {author_name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
+                )
+                await bot.send_result_to_chat(
+                    data=f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
+                )
         else:
-            result = sp.spotify_search_song(args)
-            song_info_request = sp.spotify_get_song_info(result)
-            sp.spotify_add_song_to_queue(result)
-            spotify_artists_name = song_info_request["artists"]
-            spotify_track_name = song_info_request["track_name"]
             logger.info(
-                f"Twitch user {ctx.author.name} added song to queue: {spotify_artists_name} - {spotify_track_name}"
-            )
-            await ctx.send(
-                f"Added song to queue: {spotify_artists_name} - {spotify_track_name}"
+                f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
             )
 
 
