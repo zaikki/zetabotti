@@ -1,4 +1,3 @@
 requests
 twitchio
 spotipy
-twitchAPI

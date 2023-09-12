@@ -7,8 +7,9 @@ ADD bin/ bin/
 ADD spotify/ spotify/
 ADD bot.py bot.py
 ADD .token.txt .token.txt
+ADD requirements.txt requirements.txt
 
-RUN pip install -r requirements
+RUN pip install -r requirements.txt
 RUN chmod +x bot.py bin/start.sh
 
 EXPOSE 7777
