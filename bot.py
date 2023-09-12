@@ -165,7 +165,7 @@ class Bot(commands.Bot):
 
     async def send_channel_offline_notification(self, message):
         return await message.channel.send(
-            f"Channel is offline! Some commands are disabled like !song and !addsong"
+            f"Channel is offline! Some commands are disabled like !song"
         )
 
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
@@ -316,7 +316,7 @@ class Bot(commands.Bot):
             user_name = data["user_name"]
             user_input = data["user_input"]
             await self.send_result_to_chat(
-                data=f"Refunded for user {user_name} his {cost}. Search query was: {user_input}"
+                data=f"Refunded for user: {user_name}. Point amount: {cost}. Search query was: '{user_input}'."
             )
         else:
             logger.info(
