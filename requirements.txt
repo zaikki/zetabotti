@@ -1,0 +1,4 @@
+requests
+twitchio
+spotipy
+twitchAPI
