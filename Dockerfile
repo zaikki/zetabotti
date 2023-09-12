@@ -8,7 +8,7 @@ ADD spotify/ spotify/
 ADD bot.py bot.py
 ADD .token.txt .token.txt
 
-RUN pip install requests twitchio spotipy
+RUN pip install -r requirements
 RUN chmod +x bot.py bin/start.sh
 
 EXPOSE 7777

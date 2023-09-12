@@ -1,6 +1,8 @@
 import os
 import logging
+import datetime
 import twitchio
+import requests
 from twitchio.ext import commands, pubsub
 from spotify.spotify import Spotify
 
@@ -10,6 +12,8 @@ STREAMER_CHANNEL = os.environ["CHANNEL"]
 STREAMER_CHANNEL_ID = os.environ["STREAMER_USER_ID"]
 TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
 CLIENT_ID = os.environ["CLIENT_ID"]
+CLIENT_SECRET = os.environ["CLIENT_SECRET"]
+REFRESH_TOKEN = os.environ["REFRESH_TOKEN"]
 BOT_NICK = os.environ["BOT_NICK"]
 BOT_PREFIX = os.environ["BOT_PREFIX"]
 
@@ -33,11 +37,27 @@ class Bot(commands.Bot):
             initial_channels=[STREAMER_CHANNEL],
         )
 
+    def refresh_access_token(refresh_token):
+        token_refresh_url = "https://id.twitch.tv/oauth2/token"
+        refresh_params = {
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+        }
+
+        response = requests.post(token_refresh_url, data=refresh_params)
+        new_token_data = response.json()
+        return new_token_data.get("access_token")
+
+
     async def event_ready(self):
         # Notify us when everything is ready!
         # We are logged in and ready to chat and use commands...
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
+
+        USER_OAUTH_TOKEN = self.refresh_access_token(REFRESH_TOKEN)
 
         topics = [
             pubsub.channel_points(USER_OAUTH_TOKEN)[USER_CHANNEL_ID],
@@ -86,6 +106,23 @@ class Bot(commands.Bot):
                 await self.handle_commands(message)
         except Exception as e:
             logger.info(f"An exception occurred: {e}")
+
+    async def make_api_request(self, url, params):
+        if self.is_token_expired():
+            # Refresh the access token
+            new_access_token = refresh_access_token(USER_OAUTH_TOKEN)
+            # Update the access token in the bot instance
+            self.token = new_access_token
+
+        # Make the API request with the updated access token
+        response = requests.get(url, params=params, headers={"Client-ID": CLIENT_ID, "Authorization": f"Bearer {self.token}"})
+        # Handle the API response here
+
+    def is_token_expired(self):
+        # Calculate the expiration time of the token and check if it's about to expire
+        expiration_time = datetime.datetime.fromtimestamp(USER_TOKEN_EXPIRATION_TIMESTAMP)
+        current_time = datetime.datetime.now()
+        return current_time >= expiration_time
 
     @commands.command(name="songqueue")
     async def song_queue_on_off(self, ctx: commands.Context, on_off):
