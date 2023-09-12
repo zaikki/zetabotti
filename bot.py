@@ -3,13 +3,24 @@ import logging
 import twitchio
 from twitchio.ext import commands, pubsub
 from spotify.spotify import Spotify
+from twitchAPI.pubsub import PubSub
+from twitchAPI.twitch import Twitch
+from twitchAPI.helper import first
+from twitchAPI.types import AuthScope
+from twitchAPI.oauth import UserAuthenticator
+from twitchAPI.oauth import refresh_access_token
 
+import asyncio
+from pprint import pprint
+from uuid import UUID
 
 logging.basicConfig(level=logging.INFO)
 STREAMER_CHANNEL = os.environ["CHANNEL"]
 STREAMER_CHANNEL_ID = os.environ["STREAMER_USER_ID"]
 TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
 CLIENT_ID = os.environ["CLIENT_ID"]
+CLIENT_SECRET = os.environ["CLIENT_SECRET"]
+REFRESH_TOKEN = os.environ["REFRESH_TOKEN"]
 BOT_NICK = os.environ["BOT_NICK"]
 BOT_PREFIX = os.environ["BOT_PREFIX"]
 
@@ -18,6 +29,9 @@ USER_OAUTH_TOKEN = os.environ["ACCESS_TOKEN"]
 USER_CHANNEL_ID = int(STREAMER_CHANNEL_ID)
 CLIENT = twitchio.Client(token=TOKEN)
 CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+
+
+
 
 
 class Bot(commands.Bot):
@@ -32,6 +46,9 @@ class Bot(commands.Bot):
             prefix=BOT_PREFIX,
             initial_channels=[STREAMER_CHANNEL],
         )
+    
+    # async def event_token_expired(self):
+    #     return await super().event_token_expired()
 
     async def event_ready(self):
         # Notify us when everything is ready!
@@ -44,6 +61,32 @@ class Bot(commands.Bot):
         ]
         await CLIENT.pubsub.subscribe_topics(topics)
         await CLIENT.start()
+        
+        # twitch = await Twitch(CLIENT_ID, CLIENT_SECRET)
+
+        # target_scope = [AuthScope.CHANNEL_READ_REDEMPTIONS, AuthScope.CHANNEL_MANAGE_REDEMPTIONS]
+        # auth = UserAuthenticator(twitch, target_scope, force_verify=False)
+        # # this will open your default browser and prompt you with the twitch verification website
+        # token, refresh_token = await auth.authenticate()
+        # # add User authentication
+        # await twitch.set_user_authentication(token, target_scope, refresh_token)
+
+    #     twitch = await Twitch(CLIENT_ID, CLIENT_SECRET)
+    #     new_token, new_refresh_token = await refresh_access_token(REFRESH_TOKEN, CLIENT_ID, CLIENT_SECRET)
+    #     twitch.app_auth_refresh_callback = self.app_refresh
+    #     twitch.user_auth_refresh_callback = self.user_refresh
+
+    #     print(new_token, new_refresh_token)
+    #     await self.user_refresh(new_token, new_refresh_token)
+
+    # async def user_refresh(self, token: str, refresh_token: str):
+    #     print(f'my new user token is: {token} {refresh_token}')
+
+    # async def app_refresh(self, token: str):
+    #     print(f'my new app token is: {token}')
+
+    
+
 
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(

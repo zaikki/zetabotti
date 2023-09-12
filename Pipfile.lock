@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6651bc68552bcf4c2933ad215d322cee2b3d10c8be188b8418e4624854e9398c"
+            "sha256": "ad1306c4d164da782e2fe76f36c592e701d28292b17eaf77a50fd845401adaae"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -579,6 +579,14 @@
             ],
             "version": "==2.21"
         },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+                "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==2.8.2"
+        },
         "python-dotenv": {
             "hashes": [
                 "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba",
@@ -636,6 +644,14 @@
             "index": "pypi",
             "version": "==2.23.0"
         },
+        "twitchapi": {
+            "hashes": [
+                "sha256:4e4433177da7b7cf6e06f0ba6a3fdbe5fd834243950f3ed4c9e517472558ba63",
+                "sha256:db148031a81e636af8428ed4e0eec7ded976dead57ef15e23752c9583eeea812"
+            ],
+            "index": "pypi",
+            "version": "==3.11.0"
+        },
         "twitchio": {
             "hashes": [
                 "sha256:8b37e73e65a1fe1722d9c13e13479633f3ddd0875bea6d35628ce82072b222b9",
@@ -669,11 +685,11 @@
         },
         "websocket-client": {
             "hashes": [
-                "sha256:53e95c826bf800c4c465f50093a8c4ff091c7327023b10bfaff40cf1ef170eaa",
-                "sha256:ce54f419dfae71f4bdba69ebe65bf7f0a93fe71bc009ad3a010aacc3eebad537"
+                "sha256:3aad25d31284266bcfcfd1fd8a743f63282305a364b8d0948a43bd606acc652f",
+                "sha256:6cfc30d051ebabb73a5fa246efdcc14c8fbebbd0330f8984ac3bb6d9edd2ad03"
             ],
             "index": "pypi",
-            "version": "==1.6.2"
+            "version": "==1.6.3"
         },
         "websockets": {
             "hashes": [
