@@ -6,30 +6,33 @@ from twitchio.ext import commands, pubsub
 from spotify.spotify import Spotify
 
 
-
 logging.basicConfig(level=logging.INFO)
 
 
 STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
-TWITCH_STREAMER_USER_OAUTH_TOKEN = os.environ["TWITCH_ACCESS_TOKEN"]
-TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
+
 TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
 TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
-REFRESH_TOKEN = os.environ["TWITCH_REFRESH_TOKEN"]
-TWITCH_OAUTH_TOKEN = os.environ["TWITCH_OAUTH_TOKEN"]
+
+### TWITCH_STREAMER_ACCESS_TOKEN and TWITCH_STREAMER_REFRESH_TOKEN are authed with the bot credentials
+TWITCH_STREAMER_ACCESS_TOKEN = os.environ["TWITCH_ACCESS_TOKEN"]
+TWITCH_STREAMER_REFRESH_TOKEN = os.environ["TWITCH_REFRESH_TOKEN"]
+
+TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
 TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
-CLIENT = twitchio.Client(token=TWITCH_OAUTH_TOKEN)
+
+CLIENT = twitchio.Client(token=TWITCH_STREAMER_ACCESS_TOKEN)
 CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
 
 class Bot(commands.Bot):
     def __init__(self):
-        # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
-        # prefix can be a callable, which returns a list of strings or a string...
-        # initial_channels can also be a callable which returns a list of strings...
-        self.access_token = TWITCH_STREAMER_USER_OAUTH_TOKEN
+        ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
+        ### prefix can be a callable, which returns a list of strings or a string...
+        ### initial_channels can also be a callable which returns a list of strings...
+        self.access_token = TWITCH_STREAMER_ACCESS_TOKEN
         self._parent = self
         self.twitch_song_reward_id = TWITCH_SPOTIFY_REWARD_ID
         self.reward_title = "Song request!"
@@ -39,7 +42,7 @@ class Bot(commands.Bot):
         self.reward_color = "#FF5733"  # Hex color code
 
         super().__init__(
-            token=TWITCH_OAUTH_TOKEN,
+            token=self.access_token,
             client_id=TWITCH_CLIENT_ID,
             nick=TWITCH_BOT_NICK,
             prefix=TWITCH_BOT_PREFIX,
@@ -53,13 +56,12 @@ class Bot(commands.Bot):
     ):
         # Define the API endpoint URL
         url = f"https://api.twitch.tv/helix/channel_points/custom_rewards"
-
+        print(f"create reward with token: {self.access_token}")
         # Define the request headers
         headers = {
             "Client-ID": TWITCH_CLIENT_ID,
             "Authorization": f"Bearer {self.access_token}",
         }
-
         # Define the request payload with reward information
         data = {
             "broadcaster_id": STREAMER_CHANNEL_ID,
@@ -73,12 +75,13 @@ class Bot(commands.Bot):
         try:
             # Send a POST request to create the custom reward
             response = requests.post(url, headers=headers, json=data)
-
             # Check if the request was successful (status code 200)
             if response.status_code == 200:
                 reward_data = response.json()
                 self.twitch_song_reward_id = reward_data.get("data", [])[0].get("id")
-                logger.info(f"Custom reward created with ID: {self.twitch_song_reward_id}")
+                logger.info(
+                    f"Custom reward created with ID: {self.twitch_song_reward_id}"
+                )
             elif (
                 response.status_code == 400
                 and response.json()["message"]
@@ -116,14 +119,30 @@ class Bot(commands.Bot):
         response = requests.get(token_validate_url, headers=headers)
         response_json = response.json()
         expires_in = response_json.get("expires_in")
+        # logger.info("Access token is invalid or expired.")
+        # # logger.info(response.text)  # Print the response content for debugging
+        # refreshed_token = await self.refresh_access_token(
+        #     TWITCH_STREAMER_REFRESH_TOKEN, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
+        # )
+        # # Update the access token in the bot instance
+        # print(f"before self.access_token: {self.access_token}")
+        # print(f"before refreshed_token: {refreshed_token}")
+        # self.access_token = refreshed_token
+        # print(f"after access_token: {self.access_token}")
+        # print(f"after refreshed_token: {refreshed_token}")
+        # return self.access_token
         if response.status_code == 401:
             logger.info("Access token is invalid or expired.")
             # logger.info(response.text)  # Print the response content for debugging
             refreshed_token = await self.refresh_access_token(
-                REFRESH_TOKEN, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
+                TWITCH_STREAMER_REFRESH_TOKEN, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
             )
             # Update the access token in the bot instance
-            self.access_token = refreshed_token[0]
+            print(f"before self.access_token: {self.access_token}")
+            print(f"before refreshed_token: {refreshed_token}")
+            self.access_token = refreshed_token
+            print(f"after access_token: {self.access_token}")
+            print(f"after refreshed_token: {refreshed_token}")
             return self.access_token
         elif response.status_code == 200:
             logger.info(f"Access token is valid. For {expires_in}")
@@ -272,7 +291,9 @@ class Bot(commands.Bot):
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
         # Update self.twitch_song_reward_id if a new reward is created
-        if (event.reward.title == "Song request!") and (event.reward.cost == self.reward_cost):
+        if (event.reward.title == "Song request!") and (
+            event.reward.cost == self.reward_cost
+        ):
             self.twitch_song_reward_id = event.reward.id
 
         if (event.reward.id == self.twitch_song_reward_id) and (
