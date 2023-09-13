@@ -14,9 +14,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    env:
+      SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
     - name: Build the Docker image
       # run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       run: |
-        docker build . --file Dockerfile -t zetabotti
-        docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
-        docker push zdocker.zaikki.com/zetabotti:latest
+        echo $SPOTIFY_TOKEN > .token.txt
+        cat .token.txt
+        # docker build . --file Dockerfile -t zetabotti
+        # docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
+        # docker push zdocker.zaikki.com/zetabotti:latest
