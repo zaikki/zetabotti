@@ -14,18 +14,20 @@ jobs:
     - name: Build the Docker image
       env:
         SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
+        ENV_FILE: ${{ secrets.ENV_FILE }}
       run: |
         echo $SPOTIFY_TOKEN > .token.txt
+        echo $ENV_FILE > .env
         
-        # docker build . --file Dockerfile -t zetabotti
-        # docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
-        # docker push zdocker.zaikki.com/zetabotti:latest
+        docker build . --file Dockerfile -t zetabotti
+        docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
+        docker push zdocker.zaikki.com/zetabotti:latest
 
-    - name: Read template from file
-      id: template
-      uses: traversals-analytics-and-intelligence/file-reader-action@master
-      with:
-        file: .token.txt
+    # - name: Read template from file
+    #   id: template
+    #   uses: traversals-analytics-and-intelligence/file-reader-action@master
+    #   with:
+    #     file: .token.txt
 
-    - name: Get the template output
-      run: echo "${{ steps.template.outputs.content }}"
+    # - name: Get the template output
+    #   run: echo "${{ steps.template.outputs.content }}"
