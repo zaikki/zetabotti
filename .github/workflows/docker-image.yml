@@ -16,7 +16,7 @@ jobs:
         ZDOCKER_PASSWORD: ${{ secrets.ZDOCKER_PASSWORD }}
         #ZDOCKER_USERNAME: ${{ variables.ZDOCKER_USERNAME }}
         #ZDOCKER_URL: ${{ variables.ZDOCKER_URL }}
-      run: echo $ZDOCKER_PASSWORD | docker login env.ZDOCKER_URL -u env.ZDOCKER_USERNAME --password-stdin
+      run: echo $ZDOCKER_PASSWORD | docker login $ZDOCKER_URL -u $ZDOCKER_USERNAME --password-stdin
     - name: Build the Docker image
       env:
         SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
