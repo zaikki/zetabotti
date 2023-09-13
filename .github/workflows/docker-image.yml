@@ -7,17 +7,13 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    env:
-      SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
     - name: Build the Docker image
-      # run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      env:
+        SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
       run: |
         echo $SPOTIFY_TOKEN > .token.txt
         cat .token.txt
