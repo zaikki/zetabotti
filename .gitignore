@@ -159,5 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
+## Ignore token
 .token.txt
+
+## Ignore self created pem files for scripts
+*.pem
