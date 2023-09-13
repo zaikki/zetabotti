@@ -121,8 +121,8 @@ class Bot(commands.Bot):
         response = requests.get(token_validate_url, headers=headers)
         response_json = response.json()
         expires_in = response_json.get("expires_in")
-        if response.status_code == 401:
-            logger.info("Access token is invalid or expired.")
+        if response.status_code == 401 or expires_in < 300:
+            logger.info("Access token is invalid, expired or going to be expired.")
             # logger.info(response.text)  # Print the response content for debugging
             refreshed_token = await self.refresh_access_token(
                 self.bot_refresh_token, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
@@ -131,7 +131,7 @@ class Bot(commands.Bot):
             self.bot_access_token = refreshed_token
             return self.bot_access_token
         elif response.status_code == 200:
-            logger.info(f"Access token is valid. For {expires_in}")
+            logger.info(f"Access token is valid for {expires_in}")
             return self.bot_access_token
         else:
             logger.info(f"Unexpected response: {response.status_code}")
