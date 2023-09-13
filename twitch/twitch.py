@@ -71,6 +71,29 @@ class TwitchChannelPoint:
         except Exception as e:
             logger.info(f"An error occurred: {e}")
 
+    async def refund_points(
+        self, broadcaster_id, redemption_id, event_user_id, reward_id
+    ):
+        try:
+            url = f"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={broadcaster_id}&reward_id={reward_id}&id={redemption_id}"
+            headers = {
+                "Client-Id": TWITCH_CLIENT_ID,
+                "Authorization": f"Bearer {self.bot_access_token}",
+                "Content-Type": "application/json",
+            }
+            data = {"status": "CANCELED"}
+            response = requests.patch(url, headers=headers, json=data)
+            if response.status_code == 200:
+                logger.info(f"Refunded channel points for redemption {redemption_id}.")
+                return response
+            else:
+                logger.error(
+                    f"Error refunding channel points. Status code: {response.status_code}"
+                )
+                return response
+        except Exception as e:
+            logger.error(f"Error refunding channel points: {e}")
+
 
 class TwitchOauth:
     def __init__(self):

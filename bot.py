@@ -158,29 +158,6 @@ class Bot(commands.Bot):
         result = f"https://open.spotify.com/track/{search_result}"
         await ctx.send(result)
 
-    async def refund_points(
-        self, broadcaster_id, redemption_id, event_user_id, reward_id
-    ):
-        try:
-            url = f"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={broadcaster_id}&reward_id={reward_id}&id={redemption_id}"
-            headers = {
-                "Client-Id": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {self.bot_access_token}",
-                "Content-Type": "application/json",
-            }
-            data = {"status": "CANCELED"}
-            response = requests.patch(url, headers=headers, json=data)
-            if response.status_code == 200:
-                logger.info(f"Refunded channel points for redemption {redemption_id}.")
-                return response
-            else:
-                logger.error(
-                    f"Error refunding channel points. Status code: {response.status_code}"
-                )
-                return response
-        except Exception as e:
-            logger.error(f"Error refunding channel points: {e}")
-
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
 
@@ -238,7 +215,7 @@ class Bot(commands.Bot):
             self.check_if_channel_is_live(twitch_channels) == False
         ):
             await self.send_result_to_chat(data=f"Channel not live")
-            refund_response = await self.refund_points(
+            refund_response = await TwitchChannelPoint.refund_points(self,
                 event.channel_id, event.id, event.user.id, self.twitch_song_reward_id
             )
             data_json = refund_response.json()
