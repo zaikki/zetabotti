@@ -168,3 +168,5 @@ cython_debug/
 ## Ignore twitch config files
 twitch/config.yml
 twitch/code.yml
+twitch/config.json
+twitch/code.json
