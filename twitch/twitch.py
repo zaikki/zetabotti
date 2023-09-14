@@ -1,6 +1,7 @@
 import requests
 import logging
 import os
+from .twitch_auth import oauth
 
 
 logger = logging.getLogger(__name__ + ".twitch.oauth")
@@ -17,22 +18,18 @@ class TwitchChannelPoint:
         ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         ### prefix can be a callable, which returns a list of strings or a string...
         ### initial_channels can also be a callable which returns a list of strings...
-        self.bot_access_token = self.bot_access_token
-        self.bot_refresh_token = self.bot_refresh_token
-        self.stream_access_token = self.stream_access_token
-        self.stream_refresh_token = self.stream_refresh_token
-        self._parent = self
+        self.token = oauth() # Get user token
 
     def create_channel_point_reward(
         self, title, cost, prompt, user_input_required, background_color
     ):
         # Define the API endpoint URL
         url = f"https://api.twitch.tv/helix/channel_points/custom_rewards"
-        print(f"create reward with token: {self.bot_access_token}")
+        print(f"create reward with token: {self.token}")
         # Define the request headers
         headers = {
             "Client-ID": TWITCH_CLIENT_ID,
-            "Authorization": f"Bearer {self.bot_access_token}",
+            "Authorization": f"Bearer {self.token}",
         }
         # Define the request payload with reward information
         data = {
@@ -78,7 +75,7 @@ class TwitchChannelPoint:
             url = f"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={broadcaster_id}&reward_id={reward_id}&id={redemption_id}"
             headers = {
                 "Client-Id": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {self.bot_access_token}",
+                "Authorization": f"Bearer {self.token}",
                 "Content-Type": "application/json",
             }
             data = {"status": "CANCELED"}
@@ -95,49 +92,51 @@ class TwitchChannelPoint:
             logger.error(f"Error refunding channel points: {e}")
 
 
-class TwitchOauth:
-    def __init__(self):
-        ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
-        ### prefix can be a callable, which returns a list of strings or a string...
-        ### initial_channels can also be a callable which returns a list of strings...
-        self.bot_access_token = self.bot_access_token
-        self.bot_refresh_token = self.bot_refresh_token
-        self.stream_access_token = self.stream_access_token
-        self.stream_refresh_token = self.stream_refresh_token
-        self._parent = self
+# class TwitchOauth:
+#     def __init__(self):
+#         ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
+#         ### prefix can be a callable, which returns a list of strings or a string...
+#         ### initial_channels can also be a callable which returns a list of strings...
+#         self.bot_access_token = self.bot_access_token
+#         self.bot_refresh_token = self.bot_refresh_token
+#         self.stream_access_token = self.stream_access_token
+#         self.stream_refresh_token = self.stream_refresh_token
+#         self._parent = self
 
-    async def refresh_access_token(self, refresh_token, client_id, client_secret):
-        token_refresh_url = "https://id.twitch.tv/oauth2/token"
-        refresh_params = {
-            "grant_type": "refresh_token",
-            "refresh_token": refresh_token,
-            "client_id": client_id,
-            "client_secret": client_secret,
-        }
-        response = requests.post(token_refresh_url, data=refresh_params)
-        new_token_data = response.json()
-        return new_token_data.get("access_token")
+#     async def refresh_access_token(self, refresh_token, client_id, client_secret):
+#         token_refresh_url = "https://id.twitch.tv/oauth2/token"
+#         refresh_params = {
+#             "grant_type": "refresh_token",
+#             "refresh_token": refresh_token,
+#             "client_id": client_id,
+#             "client_secret": client_secret,
+#         }
+#         response = requests.post(token_refresh_url, data=refresh_params)
+#         new_token_data = response.json()
+#         return new_token_data.get("access_token")
 
-    async def check_exp_access_token(self, bot_access_token):
-        token_validate_url = "https://id.twitch.tv/oauth2/validate"
-        headers = {"Authorization": f"Bearer {bot_access_token}"}
+#     async def check_exp_access_token(self, bot_access_token):
+#         token_validate_url = "https://id.twitch.tv/oauth2/validate"
+#         headers = {"Authorization": f"Bearer {bot_access_token}"}
+#         print(self.bot_refresh_token)
 
-        response = requests.get(token_validate_url, headers=headers)
-        response_json = response.json()
-        expires_in = response_json.get("expires_in")
-        if response.status_code == 401 or expires_in < 300:
-            logger.info("Access token is invalid, expired or going to be expired.")
-            # logger.info(response.text)  # Print the response content for debugging
-            refreshed_token = await self.refresh_access_token(
-                self.bot_refresh_token, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
-            )
-            # Update the access token in the bot instance
-            self.bot_access_token = refreshed_token
-            return self.bot_access_token
-        elif response.status_code == 200:
-            logger.info(f"Access token is valid for {expires_in}")
-            return self.bot_access_token
-        else:
-            logger.info(f"Unexpected response: {response.status_code}")
+#         response = requests.get(token_validate_url, headers=headers)
+#         response_json = response.json()
+#         expires_in = response_json.get("expires_in")
+#         if response.status_code == 401 or expires_in < 300:
+#             logger.info("Access token is invalid, expired or going to be expired.")
+#             # logger.info(response.text)  # Print the response content for debugging
+            
+#             refreshed_token = await self.refresh_access_token(
+#                 self.bot_refresh_token, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
+#             )
+#             # Update the access token in the bot instance
+#             self.bot_access_token = refreshed_token
+#             return self.bot_access_token
+#         elif response.status_code == 200:
+#             logger.info(f"Access token is valid for {expires_in}")
+#             return self.bot_access_token
+#         else:
+#             logger.info(f"Unexpected response: {response.status_code}")
 
     

@@ -21,9 +21,12 @@ jobs:
       env:
         SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
         ENV_FILE: ${{ secrets.ENV_FILE }}
+        TOKEN_CODE_YML: ${{ secrets.TOKEN_CODE_YML }}
       run: |
         echo $SPOTIFY_TOKEN > .token.txt
         echo $ENV_FILE > .env
+        echo $TOKEN_CODE_YML > twitch/code.yml
+        echo $TOKEN_CONFIG_YML > twitch/config.yml
         
         docker build . --file Dockerfile -t zetabotti
         docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest

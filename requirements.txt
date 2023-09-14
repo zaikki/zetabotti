@@ -2,3 +2,4 @@ requests
 twitchio
 spotipy
 twitchAPI
+PyYAML

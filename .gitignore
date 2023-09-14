@@ -162,5 +162,9 @@ cython_debug/
 ## Ignore token
 .token.txt
 
-## Ignore self created pem files for scripts
+## Ignore self created pem files for scripts/authorization side
 *.pem
+
+## Ignore twitch config files
+twitch/config.yml
+twitch/code.yml
