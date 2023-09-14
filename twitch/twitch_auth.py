@@ -1,7 +1,7 @@
 # Twitch OAuth Handling
 
 from .config import load_config
-import yaml
+import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 import ssl
@@ -68,10 +68,10 @@ def read_code():
     global access_token
     global refresh_token
 
-    if exists("twitch/code.yml"):
+    if exists("twitch/code.json"):
         print("Reading Twitch tokens")
-        with open("twitch/code.yml", "r") as ymlfile:
-            code = yaml.safe_load(ymlfile)
+        with open("twitch/code.json", "r") as json_file:
+            code = json.load(json_file)
             access_token = code['access_token']
             refresh_token = code['refresh_token']
             return True
@@ -83,12 +83,12 @@ def write_code():
     global refresh_token
 
 
-    with open("twitch/code.yml", "w") as ymlfile:
+    with open("twitch/code.json", "w") as json_file:
         print("Writing Twitch tokens")
-        yaml.dump({
+        json.dump({
             'access_token': access_token,
             'refresh_token': refresh_token
-        }, ymlfile)
+        }, json_file)
 
 def validate():
 
