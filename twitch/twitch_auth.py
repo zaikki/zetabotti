@@ -107,7 +107,7 @@ def validate():
     elif r.status_code == 401:
         print("invalid")
         return False
-    elif expires_in < 300:
+    elif expires_in < 1500:
         print(f"invalid {expires_in} seconds, so refreshing")
         return False
     else:
