@@ -4,7 +4,7 @@ import os
 from .twitch_auth import oauth
 
 
-logger = logging.getLogger(__name__ + ".twitch.oauth")
+logger = logging.getLogger(__name__)
 
 STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]

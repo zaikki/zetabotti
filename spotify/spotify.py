@@ -5,7 +5,7 @@ import logging
 
 SCOPE = "user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-read-private"
 # logger = logging.getLogger('bot_logger')
-logger = logging.getLogger(__name__ + ".spotify")
+logger = logging.getLogger(__name__)
 
 
 class Spotify:
