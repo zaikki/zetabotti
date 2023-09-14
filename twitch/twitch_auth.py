@@ -13,7 +13,7 @@ access_token = None
 refresh_token = None
 
 cfg = load_config()
-redirect_uri = f'https://{cfg["server"]["host"]}:{cfg["server"]["port"]}/'
+redirect_uri = f'https://{cfg["server_host"]}:{cfg["server_port"]}/'
 
 class HandleRequests(BaseHTTPRequestHandler):
 
@@ -34,7 +34,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         if not path.query:
             request_payload = { 
-                    "client_id": cfg['twitch']['client_id'],
+                    "client_id": cfg['twitch_client_id'],
                     "force_verify": 'false',
                     "redirect_uri": redirect_uri,
                     "response_type": 'code',
@@ -53,7 +53,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 # listen for response.
 def auth_code_flow():
 
-    httpd = HTTPServer((cfg['server']['host'], cfg['server']['port']), HandleRequests)
+    httpd = HTTPServer((cfg['server_host'], cfg['server_port']), HandleRequests)
     httpd.socket = ssl.wrap_socket (httpd.socket, 
         keyfile="twitch/key.pem", 
         certfile='twitch/cert.pem', server_side=True)
@@ -111,8 +111,8 @@ def get_tokens():
 
     url = 'https://id.twitch.tv/oauth2/token'
     request_payload = {
-        "client_id": cfg['twitch']['client_id'],
-        "client_secret": cfg['twitch']['client_secret'],
+        "client_id": cfg['twitch_client_id'],
+        "client_secret": cfg['twitch_client_secret'],
         'redirect_uri': redirect_uri
     }
     if code:
