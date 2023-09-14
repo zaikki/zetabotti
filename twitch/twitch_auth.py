@@ -99,13 +99,16 @@ def validate():
     print("Validating Twitch tokens...", end="")
     url = "https://id.twitch.tv/oauth2/validate"
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
+    expires_in = response_json.get("expires_in")
     if r.status_code == 200:
         response_json = r.json()
-        expires_in = response_json.get("expires_in")
         print(f"valid still {expires_in} seconds")
         return True
     elif r.status_code == 401:
         print("invalid")
+        return False
+    elif expires_in > 300:
+        print(f"invalid {expires_in} seconds, so refreshing")
         return False
     else:
         raise Exception(f"Unrecognised status code on validate {r.status_code}")
