@@ -22,6 +22,7 @@ jobs:
         SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
         ENV_FILE: ${{ secrets.ENV_FILE }}
         TOKEN_CODE_YML: ${{ secrets.TOKEN_CODE_YML }}
+        TOKEN_CONFIG_YML: ${{ secrets.TOKEN_CONFIG_YML }}
       run: |
         echo $SPOTIFY_TOKEN > .token.txt
         echo $ENV_FILE > .env
