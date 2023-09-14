@@ -100,8 +100,8 @@ def validate():
     url = "https://id.twitch.tv/oauth2/validate"
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     expires_in = response_json.get("expires_in")
+    response_json = r.json()
     if r.status_code == 200:
-        response_json = r.json()
         print(f"valid still {expires_in} seconds")
         return True
     elif r.status_code == 401:
