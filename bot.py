@@ -3,7 +3,7 @@ import logging
 import twitchio
 import requests
 from twitchio.ext import commands, pubsub, eventsub
-from spotify.spotify import Spotify
+from spotify.spotify import Spotify, blacklist
 
 # from twitch.twitch import TwitchOauth, TwitchChannelPoint
 from twitch.twitch import TwitchChannelPoint
@@ -44,7 +44,7 @@ class Bot(commands.Bot):
         # client = commands.Bot.from_client_credentials(client_id='...',
         #                                  client_secret='...')
         
-
+        self.blacklist = blacklist
         self._parent = self
         self.twitch_song_reward_id = TWITCH_SPOTIFY_REWARD_ID
         self.reward_title = "Song request!"
@@ -244,17 +244,23 @@ class Bot(commands.Bot):
     # @event()
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
+        author_name = event.user.name
+        arg = event.input
+        blacklist = [keyword.lower() for keyword in self.blacklist]
         # Update self.twitch_song_reward_id if a new reward is created
         if (event.reward.title == "Song request!") and (
             event.reward.cost == self.reward_cost
         ):
             self.twitch_song_reward_id = event.reward.id
 
+        if any(word in arg.lower() for word in blacklist):
+            logger.info(f"User {author_name} tried to find song with slur words")
+            await self.send_result_to_chat(data=f"Dirty song. Get lost.")
+            return
+
         if (event.reward.id == self.twitch_song_reward_id) and (
             bot.check_if_channel_is_live(twitch_channels) == True
         ):
-            author_name = event.user.name
-            arg = event.input
             if "https://open.spotify.com/track/" in arg:
                 song_info_request = sp.spotify_get_song_info(arg)
                 if song_info_request:
@@ -272,7 +278,6 @@ class Bot(commands.Bot):
                 )
             else:
                 result = sp.spotify_search_song(arg)
-                
                 song_info_request = sp.spotify_get_song_info(result)
                 sp.spotify_add_song_to_queue(result)
                 spotify_artists_name = song_info_request["artists"]

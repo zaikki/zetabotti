@@ -2,5 +2,5 @@ blacklist = [
     "nigger",
     "neekeri",
     "nekru",
-    "nekke",
+    "nekke"
 ]
