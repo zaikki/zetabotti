@@ -24,7 +24,7 @@ jobs:
         TOKEN_CODE_JSON: ${{ secrets.TOKEN_CODE_JSON }}
         TOKEN_CONFIG_JSON: ${{ secrets.TOKEN_CONFIG_JSON }}
       run: |
-        echo $SPOTIFY_TOKEN > .token.txt
+        echo $SPOTIFY_TOKEN > .token.json
         echo $ENV_FILE > .env
         echo $TOKEN_CODE_JSON > twitch/code.json
         echo $TOKEN_CONFIG_JSON > twitch/config.json

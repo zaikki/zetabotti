@@ -17,7 +17,7 @@ class Spotify:
                 open_browser=False,
                 redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
                 show_dialog=True,
-                cache_path=".token.txt",
+                cache_path=".token.json",
             )
         )
 

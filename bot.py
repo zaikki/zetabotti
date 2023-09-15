@@ -312,9 +312,5 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
     bot.loop.run_until_complete(bot.__ainit__())
-
-    
-
-
     sp = Spotify()
     bot.run()
