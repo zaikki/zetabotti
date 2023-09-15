@@ -64,7 +64,7 @@ class Bot(commands.Bot):
 
     async def __ainit__(self) -> None:
         
-        self.token = self.event_token_expired()
+        # self.token = self.event_token_expired()
         topics = [
             pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
         ]
