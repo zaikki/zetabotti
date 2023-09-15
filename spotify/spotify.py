@@ -2,6 +2,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import logging
+from .blacklist import blacklist
 
 SCOPE = "user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-read-private"
 # logger = logging.getLogger('bot_logger')
@@ -20,6 +21,7 @@ class Spotify:
                 cache_path=".token.json",
             )
         )
+        self.blacklist = blacklist
 
     def spotify_current_track(self):
         json_resp = self.sp.current_user_playing_track()
@@ -71,19 +73,50 @@ class Spotify:
                 "artists": artist_names,
                 "link": link,
             }
+
+            blacklisted = self.check_dict_for_words(track_info, self.blacklist)
+            if blacklisted:
+                return True
+
         except Exception as e:
             logger.info(f"An exception occurred: {e}")
 
         return track_info
 
+    def check_dict_for_words(self, track, blacklist):
+        for value in track.values():
+            for word in blacklist:
+                if word.lower() in str(value).lower():
+                    return True
+        return False
+
+    def check_blacklist(self, list_to_filter, blacklist):
+        blacklist = [keyword.lower() for keyword in blacklist]
+
+        def is_blacklisted(item, keywords):
+            for key, value in item.items():
+                lower_value = str(value).lower()
+                for keyword in keywords:
+                    lower_keyword = keyword.lower()
+                    if lower_keyword in lower_value:
+                        return True
+            return False
+
+        filtered_results = [
+            item for item in list_to_filter if not is_blacklisted(item, blacklist)
+        ]
+        return filtered_results
+
     def spotify_search_song(self, song_request):
         if isinstance(song_request, tuple):
             song_request = " ".join(song_request)
-        print(song_request)
-        result = self.sp.search(q=f"{song_request}")
-        if len(result["tracks"]["items"]) == 0:
+        result = self.sp.search(q=f"{song_request}", limit=10)
+        filtered_results = self.check_blacklist(
+            result["tracks"]["items"], self.blacklist
+        )
+        if len(filtered_results) == 0:
             logger.info(f"We did not find any songs! With request {song_request}")
             return f"We did not find any songs! With request {song_request}"
         else:
-            logger.info(f"Found song: {result['tracks']['items'][0]['id']}")
-            return result["tracks"]["items"][0]["id"]
+            logger.info(f"Found song: {filtered_results[0]['id']}")
+            return filtered_results[0]["id"]

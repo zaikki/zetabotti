@@ -257,6 +257,10 @@ class Bot(commands.Bot):
             arg = event.input
             if "https://open.spotify.com/track/" in arg:
                 song_info_request = sp.spotify_get_song_info(arg)
+                if song_info_request:
+                    logger.info(f"User {author_name} tried to find song with slur words")
+                    await self.send_result_to_chat(data=f"Dirty song. Get lost.")
+                    return
                 sp.spotify_add_song_to_queue(arg)
                 spotify_artists_name = song_info_request["artists"]
                 spotify_track_name = song_info_request["track_name"]
@@ -268,6 +272,7 @@ class Bot(commands.Bot):
                 )
             else:
                 result = sp.spotify_search_song(arg)
+                
                 song_info_request = sp.spotify_get_song_info(result)
                 sp.spotify_add_song_to_queue(result)
                 spotify_artists_name = song_info_request["artists"]
@@ -313,4 +318,7 @@ if __name__ == "__main__":
     bot = Bot()
     bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()
+    # resultti = sp.spotify_get_song_info("https://open.spotify.com/track/5znIVOv7RucpCHGkbonySq?si=b48f7fb0f6954c73")
+    # print(resultti)
+
     bot.run()
