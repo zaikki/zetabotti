@@ -7,7 +7,7 @@ ADD bin/ bin/
 ADD spotify/ spotify/
 ADD twitch/ twitch/
 ADD bot.py bot.py
-ADD .token.txt .token.txt
+ADD .token.json .token.json
 ADD requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
