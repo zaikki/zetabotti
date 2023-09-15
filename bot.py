@@ -2,14 +2,15 @@ import os
 import logging
 import twitchio
 import requests
-from twitchio.ext import commands, pubsub
+from twitchio.ext import commands, pubsub, eventsub
 from spotify.spotify import Spotify
+
 # from twitch.twitch import TwitchOauth, TwitchChannelPoint
 from twitch.twitch import TwitchChannelPoint
 import asyncio
 from twitch.twitch_auth import oauth
 from twitch.config import load_config
-
+from typing import List
 
 
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +27,11 @@ TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
 
 cfg = load_config()
+token = oauth()
+
+CLIENT = twitchio.Client(token=token)
+CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -34,7 +40,10 @@ class Bot(commands.Bot):
         ### initial_channels can also be a callable which returns a list of strings...
 
         ### Initialize tokens
-        self.token = oauth() # Get user token
+        self.token = oauth()  # Get user token
+        # client = commands.Bot.from_client_credentials(client_id='...',
+        #                                  client_secret='...')
+        
 
         self._parent = self
         self.twitch_song_reward_id = TWITCH_SPOTIFY_REWARD_ID
@@ -43,7 +52,7 @@ class Bot(commands.Bot):
         self.reward_prompt = "Search with Spotify song link or free search"
         self.user_input_required = True
         self.reward_color = "#FF5733"  # Hex color code
-        
+
         super().__init__(
             token=self.token,
             client_id=TWITCH_CLIENT_ID,
@@ -51,6 +60,47 @@ class Bot(commands.Bot):
             prefix=TWITCH_BOT_PREFIX,
             initial_channels=[STREAMER_CHANNEL],
         )
+
+
+    async def __ainit__(self) -> None:
+        
+        self.token = self.event_token_expired()
+        topics = [
+            pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
+        ]
+        
+
+        try:
+            await CLIENT.pubsub.subscribe_topics(topics)
+            #await CLIENT.start()
+        except twitchio.HTTPException:
+            pass
+
+    
+
+    
+    # async def pool(self):
+    #     # self.loop.create_task(esclient.listen(port="8080"))
+    #     print("DOING STUFF")
+
+    #     topics = [
+    #         pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
+    #     ]        
+
+    #     try:
+    #         await CLIENT.pubsub.subscribe_topics(topics)
+    #         await CLIENT.start()
+    #     except twitchio.HTTPException as e:
+    #         print(e)
+    #         pass
+
+
+        # @esbot.event()
+        # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+        #     # Access the bot instance using the 'bot' variable
+        #     await bot.twitch_pubsub_channel_points_handler(event)
+
+        
 
     async def refresh_token(self):
         while True:
@@ -73,6 +123,7 @@ class Bot(commands.Bot):
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
         asyncio.create_task(self.refresh_token())
+        # self.client = await MyPubSubPool.create_client(self)
 
         ### Check that access credentials are valid for PubSub
         # await TwitchOauth.check_exp_access_token(self, self.token)
@@ -89,14 +140,14 @@ class Bot(commands.Bot):
             user_input_required,
             reward_color,
         )
-        CLIENT = twitchio.Client(token=self.token)
-        CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+        # CLIENT = twitchio.Client(token=self.token)
+        # CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
-        topics = [
-            pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
-        ]
-        await CLIENT.pubsub.subscribe_topics(topics)
-        await CLIENT.start()
+        # topics = [
+        #     pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
+        # ]
+        # await CLIENT.pubsub.subscribe_topics(topics)
+        # await CLIENT.start()
 
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
@@ -183,11 +234,14 @@ class Bot(commands.Bot):
     async def event_pubsub_bits(event: pubsub.PubSubBitsMessage):
         pass  # do stuff on bit redemptions
 
-    async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-        # Access the bot instance using the 'bot' variable
-        await bot.twitch_pubsub_channel_points_handler(event)
+    
+    # @esbot.event()
+    # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+    #     # Access the bot instance using the 'bot' variable
+    #     await bot.twitch_pubsub_channel_points_handler(event)
 
     # Define a separate function to handle the channel points event
+    # @event()
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
         # Update self.twitch_song_reward_id if a new reward is created
@@ -228,8 +282,12 @@ class Bot(commands.Bot):
             self.check_if_channel_is_live(twitch_channels) == False
         ):
             await self.send_result_to_chat(data=f"Channel not live")
-            refund_response = await TwitchChannelPoint.refund_points(self,
-                event.channel_id, event.id, event.user.id, self.twitch_song_reward_id
+            refund_response = await TwitchChannelPoint.refund_points(
+                self,
+                event.channel_id,
+                event.id,
+                event.user.id,
+                self.twitch_song_reward_id,
             )
             data_json = refund_response.json()
             data = data_json["data"][0]
@@ -244,9 +302,19 @@ class Bot(commands.Bot):
                 f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
             )
 
+@CLIENT.event()
+async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+    # Access the bot instance using the 'bot' variable
+    await bot.twitch_pubsub_channel_points_handler(event)
+
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
+    bot.loop.run_until_complete(bot.__ainit__())
+
+    
+
+
     sp = Spotify()
     bot.run()
