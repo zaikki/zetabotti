@@ -101,7 +101,7 @@ def validate():
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     response_json = r.json()
     expires_in = response_json.get("expires_in")
-    if r.status_code == 200:
+    if r.status_code == 200 and expires_in > 6000:
         print(f"valid still {expires_in} seconds")
         return True
     elif r.status_code == 401:
