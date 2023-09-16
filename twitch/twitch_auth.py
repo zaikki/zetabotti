@@ -107,8 +107,8 @@ def validate():
     elif r.status_code == 401:
         print("invalid")
         return False
-    elif expires_in < 1500:
-        print(f"invalid {expires_in} seconds, so refreshing")
+    elif expires_in < 6000:
+        print(f"Token {expires_in} seconds, so refreshing")
         return False
     else:
         raise Exception(f"Unrecognised status code on validate {r.status_code}")
