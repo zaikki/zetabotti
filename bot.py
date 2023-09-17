@@ -119,27 +119,31 @@ class Bot(commands.Bot):
 
         
 
-    async def refresh_token(self):
-        while True:
-            try:
-                # Implement your token refresh logic here
-                # For example, you can use your existing refresh_token logic
-                new_token = oauth()
-                self.token = new_token  # Update self.token with the new token
+    # async def refresh_token(self):
+    #     while True:
+    #         try:
+    #             # Implement your token refresh logic here
+    #             # For example, you can use your existing refresh_token logic
+    #             new_token = oauth()
+    #             self.token = new_token  # Update self.token with the new token
 
-                # Sleep for 50 minutes (3000 seconds)
-                await asyncio.sleep(3000)
-            except Exception as e:
-                # Handle any exceptions that might occur during token refresh
-                print(f"Token refresh failed: {e}")
-                await asyncio.sleep(300)  # Retry after 5 minutes if refresh fails
+    #             # Sleep for 50 minutes (3000 seconds)
+    #             await asyncio.sleep(3000)
+    #         except Exception as e:
+    #             # Handle any exceptions that might occur during token refresh
+    #             print(f"Token refresh failed: {e}")
+    #             break
+    #             #await asyncio.sleep(300)  # Retry after 5 minutes if refresh fails
 
     async def event_ready(self):
         # Notify us when everything is ready!
         # We are logged in and ready to chat and use commands...
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
-        asyncio.create_task(self.refresh_token())
+        
+        # asyncio.create_task(self.refresh_token())
+        
+        
         # self.client = await MyPubSubPool.create_client(self)
 
         ### Check that access credentials are valid for PubSub
@@ -254,6 +258,9 @@ class Bot(commands.Bot):
         self.streamer_channel = channel
         self.streamer_id = STREAMER_CHANNEL_ID
 
+    async def event_token_expired(self):
+        return oauth()
+
     
     # @esbot.event()
     # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
@@ -332,6 +339,10 @@ class Bot(commands.Bot):
             logger.info(
                 f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
             )
+
+@CLIENT.event()
+async def event_token_expired():
+        return oauth()
 
 @CLIENT.event()
 async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):

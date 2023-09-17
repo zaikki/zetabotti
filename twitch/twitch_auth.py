@@ -12,6 +12,7 @@ import logging
 code = None
 access_token = None
 refresh_token = None
+expires_in = None
 
 logger = logging.getLogger(__name__)
 
@@ -74,12 +75,14 @@ def auth_code_flow():
 def read_code():
     global access_token
     global refresh_token
+    global expires_in
     if exists("twitch/code.json"):
         logger.info("Reading Twitch tokens")
         with open("twitch/code.json", "r") as json_file:
             code = json.load(json_file)
             access_token = code["access_token"]
             refresh_token = code["refresh_token"]
+            expires_in = code["expires_in"]
             return True
 
     return False
@@ -88,10 +91,11 @@ def read_code():
 def write_code():
     global access_token
     global refresh_token
+    global expires_in
     with open("twitch/code.json", "w") as json_file:
         logger.info("Writing Twitch tokens")
         json.dump(
-            {"access_token": access_token, "refresh_token": refresh_token}, json_file
+            {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}, json_file
         )
 
 
@@ -118,6 +122,7 @@ def get_tokens():
     logger.info("Fetching Twitch tokens")
     global access_token
     global refresh_token
+    global expires_in
     url = "https://id.twitch.tv/oauth2/token"
     request_payload = {
         "client_id": cfg["twitch_client_id"],
@@ -130,13 +135,16 @@ def get_tokens():
     if refresh_token:
         request_payload["grant_type"] = "refresh_token"
         request_payload["refresh_token"] = refresh_token
+        request_payload["expires_in"] = expires_in
 
     r = requests.post(url, data=request_payload).json()
     try:
         access_token = r["access_token"]
         refresh_token = r["refresh_token"]
+        expires_in = r["expires_in"]
         logger.info(f"Access token: {access_token}")
         logger.info(f"Refresh token: {refresh_token}")
+        logger.info(f"Expires in: {expires_in}")
     except:
         logger.error("Unexpected response on redeeming auth code:")
         logger.error(r)
