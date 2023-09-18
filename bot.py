@@ -27,10 +27,10 @@ TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
 
 cfg = load_config()
-token = oauth()
+# token = oauth()
 
-CLIENT = twitchio.Client(token=token)
-CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+# CLIENT = twitchio.Client(token=token)
+# CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
 class AuthClientError(Exception):
         pass
@@ -67,7 +67,11 @@ class Bot(commands.Bot):
 
     async def __ainit__(self) -> None:
         
-        # self.token = self.event_token_expired()
+        asyncio.create_task(self.refresh_token())
+
+        CLIENT = twitchio.Client(token=self.token)
+        CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+
         topics = [
             pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
         ]
@@ -78,6 +82,22 @@ class Bot(commands.Bot):
             #await CLIENT.start()
         except twitchio.HTTPException:
             pass
+        return CLIENT
+
+    async def refresh_token(self):
+        while True:
+            try:
+                # Implement your token refresh logic here
+                # For example, you can use your existing refresh_token logic
+                new_token = oauth()
+                self.token = new_token  # Update self.token with the new token
+
+                # Sleep for a certain duration (e.g., 50 minutes)
+                await asyncio.sleep(3000)
+            except Exception as e:
+                # Handle any exceptions that might occur during token refresh
+                print(f"Token refresh failed: {e}")
+                break
 
 
     # def renew_access_token(self, func):
@@ -340,22 +360,24 @@ class Bot(commands.Bot):
                 f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
             )
 
-@CLIENT.event()
-async def event_token_expired():
-        return oauth()
 
-@CLIENT.event()
-async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-    # Access the bot instance using the 'bot' variable
-    await bot.twitch_pubsub_channel_points_handler(event)
 
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
-    bot.loop.run_until_complete(bot.__ainit__())
+    CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()
     # resultti = sp.spotify_get_song_info("https://open.spotify.com/track/5znIVOv7RucpCHGkbonySq?si=b48f7fb0f6954c73")
     # print(resultti)
+
+    @CLIENT.event()
+    async def event_token_expired():
+            return oauth()
+
+    @CLIENT.event()
+    async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+        # Access the bot instance using the 'bot' variable
+        await bot.twitch_pubsub_channel_points_handler(event)
 
     bot.run()
