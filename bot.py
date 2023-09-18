@@ -32,8 +32,9 @@ cfg = load_config()
 # CLIENT = twitchio.Client(token=token)
 # CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
+
 class AuthClientError(Exception):
-        pass
+    pass
 
 
 class Bot(commands.Bot):
@@ -46,7 +47,7 @@ class Bot(commands.Bot):
         self.token = oauth()  # Get user token
         # client = commands.Bot.from_client_credentials(client_id='...',
         #                                  client_secret='...')
-        
+
         self.blacklist = blacklist
         self._parent = self
         self.twitch_song_reward_id = TWITCH_SPOTIFY_REWARD_ID
@@ -64,9 +65,7 @@ class Bot(commands.Bot):
             initial_channels=[STREAMER_CHANNEL],
         )
 
-
     async def __ainit__(self) -> None:
-        
         asyncio.create_task(self.refresh_token())
 
         CLIENT = twitchio.Client(token=self.token)
@@ -75,11 +74,10 @@ class Bot(commands.Bot):
         topics = [
             pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
         ]
-        
 
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
-            #await CLIENT.start()
+            # await CLIENT.start()
         except twitchio.HTTPException:
             pass
         return CLIENT
@@ -99,7 +97,6 @@ class Bot(commands.Bot):
                 print(f"Token refresh failed: {e}")
                 break
 
-
     # def renew_access_token(self, func):
     #     def wrapper(*args, **kwargs):
     #         try:
@@ -110,19 +107,14 @@ class Bot(commands.Bot):
     # # once the token is refreshed, we can retry the operation
     #             return func(*args, **kwargs)
     #     return wrapper
-    
-    
 
-    
-
-    
     # async def pool(self):
     #     # self.loop.create_task(esclient.listen(port="8080"))
     #     print("DOING STUFF")
 
     #     topics = [
     #         pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
-    #     ]        
+    #     ]
 
     #     try:
     #         await CLIENT.pubsub.subscribe_topics(topics)
@@ -131,13 +123,10 @@ class Bot(commands.Bot):
     #         print(e)
     #         pass
 
-
-        # @esbot.event()
-        # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-        #     # Access the bot instance using the 'bot' variable
-        #     await bot.twitch_pubsub_channel_points_handler(event)
-
-        
+    # @esbot.event()
+    # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+    #     # Access the bot instance using the 'bot' variable
+    #     await bot.twitch_pubsub_channel_points_handler(event)
 
     # async def refresh_token(self):
     #     while True:
@@ -160,10 +149,9 @@ class Bot(commands.Bot):
         # We are logged in and ready to chat and use commands...
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
-        
+
         # asyncio.create_task(self.refresh_token())
-        
-        
+
         # self.client = await MyPubSubPool.create_client(self)
 
         ### Check that access credentials are valid for PubSub
@@ -190,7 +178,7 @@ class Bot(commands.Bot):
         # await CLIENT.pubsub.subscribe_topics(topics)
         # await CLIENT.start()
 
-    #@renew_access_token
+    # @renew_access_token
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
             filter(lambda obj: (obj.display_name == STREAMER_CHANNEL), twitch_channels)
@@ -200,20 +188,20 @@ class Bot(commands.Bot):
         else:
             return False
 
-    #@renew_access_token
+    # @renew_access_token
     async def send_channel_offline_notification(self, message):
         return await message.channel.send(
             f"Channel is offline! Some commands are disabled like !song"
         )
-    
-    #@renew_access_token
+
+    # @renew_access_token
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
         if ctx.author.display_name == STREAMER_CHANNEL:
             logger.info(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
         else:
             logger.info(f"Nasty pleb: {ctx.author.display_name}")
 
-    #@renew_access_token
+    # @renew_access_token
     async def event_message(self, message):
         # Messages with echo set to True are messages sent by the bot...
         # For now we just want to ignore them...
@@ -267,11 +255,11 @@ class Bot(commands.Bot):
         result = f"https://open.spotify.com/track/{search_result}"
         await ctx.send(result)
 
-    #@renew_access_token
+    # @renew_access_token
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
 
-    #@renew_access_token
+    # @renew_access_token
     async def event_channel_joined(self, channel: twitchio.Channel):
         if channel.name != STREAMER_CHANNEL:
             return
@@ -281,15 +269,24 @@ class Bot(commands.Bot):
     async def event_token_expired(self):
         return oauth()
 
-    
-    # @esbot.event()
-    # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-    #     # Access the bot instance using the 'bot' variable
-    #     await bot.twitch_pubsub_channel_points_handler(event)
+    async def refund(self, event):
+        await self.send_result_to_chat(data=f"Channel not live")
+        refund_response = await TwitchChannelPoint.refund_points(
+            self,
+            event.channel_id,
+            event.id,
+            event.user.id,
+            self.twitch_song_reward_id,
+        )
+        data_json = refund_response.json()
+        data = data_json["data"][0]
+        cost = data["reward"]["cost"]
+        user_name = data["user_name"]
+        user_input = data["user_input"]
+        await self.send_result_to_chat(
+            data=f"Refunded for user: {user_name}. Point amount: {cost}. Search query was: '{user_input}'."
+        )
 
-    # Define a separate function to handle the channel points event
-    # @event()
-    #@renew_access_token
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
         author_name = event.user.name
@@ -312,7 +309,9 @@ class Bot(commands.Bot):
             if "https://open.spotify.com/track/" in arg:
                 song_info_request = sp.spotify_get_song_info(arg)
                 if song_info_request:
-                    logger.info(f"User {author_name} tried to find song with slur words")
+                    logger.info(
+                        f"User {author_name} tried to find song with slur words"
+                    )
                     await self.send_result_to_chat(data=f"Dirty song. Get lost.")
                     return
                 sp.spotify_add_song_to_queue(arg)
@@ -326,6 +325,12 @@ class Bot(commands.Bot):
                 )
             else:
                 result = sp.spotify_search_song(arg)
+                if result == False:
+                    await self.send_result_to_chat(
+                        data=f"We did not find any songs! Refunding points."
+                    )
+                    await self.refund(event)
+
                 song_info_request = sp.spotify_get_song_info(result)
                 sp.spotify_add_song_to_queue(result)
                 spotify_artists_name = song_info_request["artists"]
@@ -339,28 +344,11 @@ class Bot(commands.Bot):
         elif (event.reward.id == self.twitch_song_reward_id) and (
             self.check_if_channel_is_live(twitch_channels) == False
         ):
-            await self.send_result_to_chat(data=f"Channel not live")
-            refund_response = await TwitchChannelPoint.refund_points(
-                self,
-                event.channel_id,
-                event.id,
-                event.user.id,
-                self.twitch_song_reward_id,
-            )
-            data_json = refund_response.json()
-            data = data_json["data"][0]
-            cost = data["reward"]["cost"]
-            user_name = data["user_name"]
-            user_input = data["user_input"]
-            await self.send_result_to_chat(
-                data=f"Refunded for user: {user_name}. Point amount: {cost}. Search query was: '{user_input}'."
-            )
+            await self.refund(event)
         else:
             logger.info(
                 f"We do not have that reward configured: {event.reward.title} {event.reward.id}"
             )
-
-
 
 
 if __name__ == "__main__":
@@ -373,7 +361,7 @@ if __name__ == "__main__":
 
     @CLIENT.event()
     async def event_token_expired():
-            return oauth()
+        return oauth()
 
     @CLIENT.event()
     async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):

@@ -116,7 +116,7 @@ class Spotify:
         )
         if len(filtered_results) == 0:
             logger.info(f"We did not find any songs! With request {song_request}")
-            return f"We did not find any songs! With request {song_request}"
+            return False
         else:
             logger.info(f"Found song: {filtered_results[0]['id']}")
             return filtered_results[0]["id"]
