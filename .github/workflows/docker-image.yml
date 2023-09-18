@@ -35,4 +35,4 @@ jobs:
 
     - name: Trigger Portainer webhook
       run: |
-        curl -X POST https://portainer.zaikki.com/api/stacks/webhooks/638e6967-ef77-4906-8af8-236800621360?tag=latest"
+        curl -X POST "https://portainer.zaikki.com/api/stacks/webhooks/638e6967-ef77-4906-8af8-236800621360?tag=latest"
