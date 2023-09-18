@@ -32,3 +32,7 @@ jobs:
         docker build . --file Dockerfile -t zetabotti
         docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
         docker push zdocker.zaikki.com/zetabotti:latest
+
+    - name: Trigger Portainer webhook
+      run: |
+        curl -x POST https://portainer:9443/api/stacks/webhooks/638e6967-ef77-4906-8af8-236800621360?tag=latest" -H "Content-Type: application/x-www-form-urlencoded"
