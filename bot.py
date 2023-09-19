@@ -100,6 +100,7 @@ class Bot(commands.Bot):
 
     def renew_access_token(self, func):
         def wrapper(*args, **kwargs):
+            print("doing wrapper stuff")
             try:
                 return func(*args, **kwargs)
             except AuthClientError:
