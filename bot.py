@@ -330,7 +330,7 @@ class Bot(commands.Bot):
                         data=f"We did not find any songs! Refunding points."
                     )
                     await self.refund(event)
-
+                    return
                 song_info_request = sp.spotify_get_song_info(result)
                 sp.spotify_add_song_to_queue(result)
                 spotify_artists_name = song_info_request["artists"]
