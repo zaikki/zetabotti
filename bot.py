@@ -180,7 +180,7 @@ class Bot(commands.Bot):
         # await CLIENT.pubsub.subscribe_topics(topics)
         # await CLIENT.start()
 
-    @renew_access_token()
+    #@renew_access_token()
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
             filter(lambda obj: (obj.display_name == STREAMER_CHANNEL), twitch_channels)
@@ -190,20 +190,20 @@ class Bot(commands.Bot):
         else:
             return False
 
-    @renew_access_token()
+    #@renew_access_token()
     async def send_channel_offline_notification(self, message):
         return await message.channel.send(
             f"Channel is offline! Some commands are disabled like !song"
         )
 
-    @renew_access_token()
+    #@renew_access_token()
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
         if ctx.author.display_name == STREAMER_CHANNEL:
             logger.info(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
         else:
             logger.info(f"Nasty pleb: {ctx.author.display_name}")
 
-    @renew_access_token()
+    #@renew_access_token()
     async def event_message(self, message):
         # Messages with echo set to True are messages sent by the bot...
         # For now we just want to ignore them...
@@ -260,11 +260,11 @@ class Bot(commands.Bot):
         result = f"https://open.spotify.com/track/{search_result}"
         await self.send_result_to_chat(data=f"{result}")
 
-    @renew_access_token()
+    #@renew_access_token()
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
 
-    @renew_access_token()
+    #@renew_access_token()
     async def event_channel_joined(self, channel: twitchio.Channel):
         if channel.name != STREAMER_CHANNEL:
             return
@@ -274,7 +274,7 @@ class Bot(commands.Bot):
     async def event_token_expired(self):
         return oauth()
 
-    @renew_access_token()
+    #@renew_access_token()
     async def refund(self, event):
         await self.send_result_to_chat(data=f"Channel not live")
         refund_response = await TwitchChannelPoint.refund_points(
@@ -293,7 +293,7 @@ class Bot(commands.Bot):
             data=f"Refunded for user: {user_name}. Point amount: {cost}. Search query was: '{user_input}'."
         )
 
-    @renew_access_token()
+    #@renew_access_token()
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
         author_name = event.user.name
