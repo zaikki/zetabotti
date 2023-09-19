@@ -237,23 +237,26 @@ class Bot(commands.Bot):
             logger.info(
                 f"Twitch user {ctx.author.name} fetched song: {spotify_current_artists} - {spotify_current_track_name}"
             )
-            await ctx.send(
-                f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
+            await self.send_result_to_chat(
+                data=f"Current song is: {spotify_current_artists} - {spotify_current_track_name}"
             )
         elif current_song == None:
             logger.info(f"Spotify not running or playing songs.")
-            await ctx.send(f"Spotify not running or playing songs.")
+            await self.send_result_to_chat(data="Spotify not running or playing songs.")
         else:
             logger.info(
                 f"Twitch user {ctx.author.name} tried to find songs, but nothing is playing."
             )
-            await ctx.send(f"No songs playing!")
+            await self.send_result_to_chat(data="No songs playing!")
 
     @commands.command(name="searchsong")
     async def search_song(self, ctx: commands.Context, *args):
         search_result = sp.spotify_search_song(args)
+        if search_result == False:
+            await self.send_result_to_chat(data=f"We did not find any songs!")
+            return
         result = f"https://open.spotify.com/track/{search_result}"
-        await ctx.send(result)
+        await self.send_result_to_chat(data=f"{result}")
 
     # @renew_access_token
     async def send_result_to_chat(self, data):
