@@ -58,9 +58,11 @@ class Bot(commands.Bot):
 
         CLIENT = twitchio.Client(token=self.token)
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+        print(type(STREAMER_CHANNEL_ID))
+        print(type(int(STREAMER_CHANNEL_ID)))
 
         topics = [
-            pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
+            pubsub.channel_points(self.token)[int(float(STREAMER_CHANNEL_ID))],
         ]
 
         try:
