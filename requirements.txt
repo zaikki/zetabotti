@@ -3,3 +3,4 @@ twitchio
 spotipy
 twitchAPI
 PyYAML
+dotenv
