@@ -62,7 +62,7 @@ class Bot(commands.Bot):
         # print(type(int(STREAMER_CHANNEL_ID)))
 
         topics = [
-            pubsub.channel_points(self.token)[os.environ["TWITCH_STREAMER_USER_ID"]],
+            pubsub.channel_points(self.token)[24316398],
         ]
 
         try:
