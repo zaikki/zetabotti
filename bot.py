@@ -276,7 +276,6 @@ class Bot(commands.Bot):
 
     #@renew_access_token()
     async def refund(self, event):
-        await self.send_result_to_chat(data=f"Channel not live")
         refund_response = await TwitchChannelPoint.refund_points(
             self,
             event.channel_id,

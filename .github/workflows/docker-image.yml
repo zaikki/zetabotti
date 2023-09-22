@@ -34,6 +34,6 @@ jobs:
         docker push zdocker.zaikki.com/zetabotti:latest
 
     - name: Trigger Portainer webhook
-      run: |
-        curl -X POST "https://portainer.zaikki.com/api/stacks/webhooks/638e6967-ef77-4906-8af8-236800621360?tag=latest"
+      run: | 
+        curl -X POST "https://portainer.zaikki.com/api/stacks/webhooks/4f7f585d-0206-4f57-98f9-1bc3b1d6985c?tag=latest"
         echo test
