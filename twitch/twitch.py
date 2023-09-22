@@ -2,10 +2,13 @@ import requests
 import logging
 import os
 from .twitch_auth import oauth
+from dotenv import load_dotenv
+from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
-
+dotenv_path = Path('../.env')
+load_dotenv(dotenv_path=dotenv_path)
 STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
 

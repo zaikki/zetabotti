@@ -8,6 +8,15 @@ SCOPE = "user-library-read user-read-currently-playing user-read-playback-state 
 # logger = logging.getLogger('bot_logger')
 logger = logging.getLogger(__name__)
 
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+logger = logging.getLogger(__name__)
+dotenv_path = Path('../.env')
+load_dotenv(dotenv_path=dotenv_path)
+REDIRECT_URI=os.environ["SPOTIPY_REDIRECT_URI"]
+
 
 class Spotify:
     # init method or constructor
@@ -16,7 +25,7 @@ class Spotify:
             auth_manager=SpotifyOAuth(
                 scope=SCOPE,
                 open_browser=False,
-                redirect_uri=os.environ["SPOTIPY_REDIRECT_URI"],
+                redirect_uri=REDIRECT_URI,
                 show_dialog=True,
                 cache_path=".token.json",
             )

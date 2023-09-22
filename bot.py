@@ -9,25 +9,15 @@ import asyncio
 from twitch.twitch_auth import oauth
 from twitch.config import load_config
 from typing import List
-
+import json
 from dotenv import load_dotenv
 from pathlib import Path
-import json
-
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
-STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
 
-TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
-TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
-
-TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
-TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
-TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
 
 cfg = load_config()
 
@@ -297,16 +287,23 @@ class Bot(commands.Bot):
 
 
 if __name__ == "__main__":
-    
-    
-
+    logger = logging.getLogger(__name__)
     data = json.load(open('.env.json'))
-    f = open(".env", "x")
+
+    f = open(".env", "w")
+
     for key, value in data.items():
         f.write(f"{key.upper()}={value}\n")
-    dotenv_path = Path('.env')
-    load_dotenv(dotenv_path=dotenv_path)
-    logger = logging.getLogger(__name__)
+    load_dotenv()           #load vars again to consider the new added one
+    STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
+    STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
+
+    TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
+    TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
+
+    TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
+    TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
+    TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()
