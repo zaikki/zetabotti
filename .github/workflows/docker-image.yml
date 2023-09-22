@@ -23,6 +23,7 @@ jobs:
         ENV_FILE: ${{ secrets.ENV_FILE }}
         TOKEN_CODE_JSON: ${{ secrets.TOKEN_CODE_JSON }}
         TOKEN_CONFIG_JSON: ${{ secrets.TOKEN_CONFIG_JSON }}
+        PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
       run: |
         echo $SPOTIFY_TOKEN > .token.json
         echo $ENV_FILE > .env
@@ -35,5 +36,5 @@ jobs:
 
     - name: Trigger Portainer webhook
       run: | 
-        curl -X POST "https://portainer.zaikki.com/api/stacks/webhooks/4f7f585d-0206-4f57-98f9-1bc3b1d6985c?tag=latest"
+        curl --user admin:$PORTAINER_PASSWORD -X POST "https://portainer.zaikki.com/api/stacks/webhooks/4f7f585d-0206-4f57-98f9-1bc3b1d6985c?tag=latest"
         echo test
