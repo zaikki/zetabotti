@@ -12,7 +12,7 @@ from typing import List
 
 from dotenv import load_dotenv
 from pathlib import Path
-
+import json
 
 
 
@@ -70,7 +70,7 @@ class Bot(commands.Bot):
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
         topics = [
-            pubsub.channel_points(self.token)[STREAMER_CHANNEL_ID],
+            pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
         ]
 
         try:
@@ -297,6 +297,13 @@ class Bot(commands.Bot):
 
 
 if __name__ == "__main__":
+    
+    
+
+    data = json.load(open('.env.json'))
+    f = open(".env", "x")
+    for key, value in data.items():
+        f.write(f"{key.upper()}={value}\n")
     dotenv_path = Path('.env')
     load_dotenv(dotenv_path=dotenv_path)
     logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ RUN apt-get -y upgrade
 ADD bin/ bin/
 ADD spotify/ spotify/
 ADD twitch/ twitch/
-ADD .env .env
+ADD .env.json .env.json
 ADD bot.py bot.py
 ADD .token.json .token.json
 ADD requirements.txt requirements.txt

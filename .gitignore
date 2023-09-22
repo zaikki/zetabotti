@@ -162,6 +162,7 @@ cython_debug/
 ## Ignore token
 .token.txt
 .token.json
+.env.json
 
 ## Ignore self created pem files for scripts/authorization side
 *.pem
