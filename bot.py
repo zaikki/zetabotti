@@ -296,6 +296,7 @@ if __name__ == "__main__":
 
     for key, value in data.items():
         f.write(f"{key.upper()}={value}\n")
+    print(open(".env", "r"))
     load_dotenv()           #load vars again to consider the new added one
     STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
     STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
