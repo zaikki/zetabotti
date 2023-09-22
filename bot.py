@@ -70,7 +70,7 @@ class Bot(commands.Bot):
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
         topics = [
-            pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
+            pubsub.channel_points(self.token)[STREAMER_CHANNEL_ID],
         ]
 
         try:
