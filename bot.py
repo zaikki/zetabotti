@@ -62,7 +62,7 @@ class Bot(commands.Bot):
         # print(type(int(STREAMER_CHANNEL_ID)))
 
         topics = [
-            pubsub.channel_points(self.token)[int(str(STREAMER_CHANNEL_ID))],
+            pubsub.channel_points(self.token)[{STREAMER_CHANNEL_ID}],
         ]
 
         try:
