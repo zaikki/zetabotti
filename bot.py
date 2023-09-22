@@ -96,7 +96,7 @@ class Bot(commands.Bot):
             except Exception as e:
                 # Handle any exceptions that might occur during token refresh
                 print(f"Token refresh failed: {e}")
-                break
+                await asyncio.sleep(300)
 
     def renew_access_token(self, func):
         def wrapper(*args, **kwargs):
