@@ -10,6 +10,11 @@ from twitch.twitch_auth import oauth
 from twitch.config import load_config
 from typing import List
 
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +41,7 @@ class Bot(commands.Bot):
         ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         ### prefix can be a callable, which returns a list of strings or a string...
         ### initial_channels can also be a callable which returns a list of strings...
+        ### Testi triggeröidään
 
         ### Initialize tokens
         self.token = oauth()
@@ -291,6 +297,8 @@ class Bot(commands.Bot):
 
 
 if __name__ == "__main__":
+    dotenv_path = Path('.env')
+    load_dotenv(dotenv_path=dotenv_path)
     logger = logging.getLogger(__name__)
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
