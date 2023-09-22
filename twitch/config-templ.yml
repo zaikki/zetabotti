@@ -1,8 +1,0 @@
-server_host: localhost
-server_port: 3000
-twitch_server: irc.chat.twitch.tv
-twitch_port: 6667
-twitch_client_id: client_id
-twitch_client_secret: client_secret
-twitch_name: zetabotti
-twitch_channel: '#your_channel_name'

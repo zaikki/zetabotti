@@ -2,10 +2,8 @@ import os
 import logging
 import twitchio
 import requests
-from twitchio.ext import commands, pubsub, eventsub
+from twitchio.ext import commands, pubsub
 from spotify.spotify import Spotify, blacklist
-
-# from twitch.twitch import TwitchOauth, TwitchChannelPoint
 from twitch.twitch import TwitchChannelPoint
 import asyncio
 from twitch.twitch_auth import oauth
@@ -27,10 +25,6 @@ TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
 
 cfg = load_config()
-# token = oauth()
-
-# CLIENT = twitchio.Client(token=token)
-# CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
 
 class AuthClientError(Exception):
@@ -44,10 +38,7 @@ class Bot(commands.Bot):
         ### initial_channels can also be a callable which returns a list of strings...
 
         ### Initialize tokens
-        self.token = oauth()  # Get user token
-        # client = commands.Bot.from_client_credentials(client_id='...',
-        #                                  client_secret='...')
-
+        self.token = oauth()
         self.blacklist = blacklist
         self._parent = self
         self.twitch_song_reward_id = TWITCH_SPOTIFY_REWARD_ID
@@ -78,7 +69,6 @@ class Bot(commands.Bot):
 
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
-            # await CLIENT.start()
         except twitchio.HTTPException:
             pass
         return CLIENT
@@ -104,57 +94,16 @@ class Bot(commands.Bot):
             try:
                 return func(*args, **kwargs)
             except AuthClientError:
-                # Invoke the code responsible for get a new token
                 self.token = oauth()
-    # once the token is refreshed, we can retry the operation
                 return func(*args, **kwargs)
+
         return wrapper
-
-    # async def pool(self):
-    #     # self.loop.create_task(esclient.listen(port="8080"))
-    #     print("DOING STUFF")
-
-    #     topics = [
-    #         pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
-    #     ]
-
-    #     try:
-    #         await CLIENT.pubsub.subscribe_topics(topics)
-    #         await CLIENT.start()
-    #     except twitchio.HTTPException as e:
-    #         print(e)
-    #         pass
-
-    # @esbot.event()
-    # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-    #     # Access the bot instance using the 'bot' variable
-    #     await bot.twitch_pubsub_channel_points_handler(event)
-
-    # async def refresh_token(self):
-    #     while True:
-    #         try:
-    #             # Implement your token refresh logic here
-    #             # For example, you can use your existing refresh_token logic
-    #             new_token = oauth()
-    #             self.token = new_token  # Update self.token with the new token
-
-    #             # Sleep for 50 minutes (3000 seconds)
-    #             await asyncio.sleep(3000)
-    #         except Exception as e:
-    #             # Handle any exceptions that might occur during token refresh
-    #             print(f"Token refresh failed: {e}")
-    #             break
-    #             #await asyncio.sleep(300)  # Retry after 5 minutes if refresh fails
 
     async def event_ready(self):
         # Notify us when everything is ready!
         # We are logged in and ready to chat and use commands...
         logger.info(f"Logged in as | {self.nick}")
         logger.info(f"User id is | {self.user_id}")
-
-        # asyncio.create_task(self.refresh_token())
-
-        # self.client = await MyPubSubPool.create_client(self)
 
         ### Check that access credentials are valid for PubSub
         # await TwitchOauth.check_exp_access_token(self, self.token)
@@ -171,16 +120,7 @@ class Bot(commands.Bot):
             user_input_required,
             reward_color,
         )
-        # CLIENT = twitchio.Client(token=self.token)
-        # CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
 
-        # topics = [
-        #     pubsub.channel_points(self.token)[int(STREAMER_CHANNEL_ID)],
-        # ]
-        # await CLIENT.pubsub.subscribe_topics(topics)
-        # await CLIENT.start()
-
-    #@renew_access_token()
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
             filter(lambda obj: (obj.display_name == STREAMER_CHANNEL), twitch_channels)
@@ -190,20 +130,17 @@ class Bot(commands.Bot):
         else:
             return False
 
-    #@renew_access_token()
     async def send_channel_offline_notification(self, message):
         return await message.channel.send(
             f"Channel is offline! Some commands are disabled like !song"
         )
 
-    #@renew_access_token()
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
         if ctx.author.display_name == STREAMER_CHANNEL:
             logger.info(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
         else:
             logger.info(f"Nasty pleb: {ctx.author.display_name}")
 
-    #@renew_access_token()
     async def event_message(self, message):
         # Messages with echo set to True are messages sent by the bot...
         # For now we just want to ignore them...
@@ -260,11 +197,9 @@ class Bot(commands.Bot):
         result = f"https://open.spotify.com/track/{search_result}"
         await self.send_result_to_chat(data=f"{result}")
 
-    #@renew_access_token()
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
 
-    #@renew_access_token()
     async def event_channel_joined(self, channel: twitchio.Channel):
         if channel.name != STREAMER_CHANNEL:
             return
@@ -274,7 +209,6 @@ class Bot(commands.Bot):
     async def event_token_expired(self):
         return oauth()
 
-    #@renew_access_token()
     async def refund(self, event):
         refund_response = await TwitchChannelPoint.refund_points(
             self,
@@ -292,7 +226,6 @@ class Bot(commands.Bot):
             data=f"Refunded for user: {user_name}. Point amount: {cost}. Search query was: '{user_input}'."
         )
 
-    #@renew_access_token()
     async def twitch_pubsub_channel_points_handler(self, event):
         twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
         author_name = event.user.name
@@ -371,7 +304,6 @@ if __name__ == "__main__":
 
     @CLIENT.event()
     async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-        # Access the bot instance using the 'bot' variable
         await bot.twitch_pubsub_channel_points_handler(event)
 
     bot.run()
