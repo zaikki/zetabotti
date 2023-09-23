@@ -28,9 +28,19 @@ from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 import ssl
 import os
 import requests
-from dotenv import load_dotenv
+import json
 
-load_dotenv()
+
+
+def load_config(path):
+    cfg = None
+    if not cfg:
+        with open(path, "r") as json_file:
+            cfg = json.load(json_file)
+    return cfg
+
+cfg = load_config("../../.env.json")
+print(cfg)
 
 host = "localhost"
 port = 3000
@@ -57,7 +67,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         if not path.query:
             # If there's no auth code, keep serving the web page.
             request_payload = {
-                "client_id": os.environ["TWITCH_CLIENT_ID"],
+                "client_id": cfg["TWITCH_CLIENT_ID"],
                 "force_verify": "false",
                 "redirect_uri": redirect_uri,
                 "response_type": "code",
@@ -88,10 +98,10 @@ def get_tokens():
 
     url = "https://id.twitch.tv/oauth2/token"
     request_payload = {
-        "client_id": os.environ["TWITCH_CLIENT_ID"],
-        "client_secret": os.environ["TWITCH_CLIENT_SECRET"],
+        "client_id": cfg["TWITCH_CLIENT_ID"],
+        "client_secret": cfg["TWITCH_CLIENT_SECRET"],
         "grant_type": "authorization_code",
-        "code": os.environ["auth_code"],
+        "code": cfg["twitch_auth_code"],
         "redirect_uri": redirect_uri,
     }
 
@@ -113,7 +123,7 @@ def get_tokens():
 def auth_code_flow():
     httpd = HTTPServer((host, port), HandleRequests)
     httpd.socket = ssl.wrap_socket(
-        httpd.socket, keyfile="key.pem", certfile="cert.pem", server_side=True
+        httpd.socket, keyfile="../twitch/key.pem", certfile="../twitch/cert.pem", server_side=True
     )
 
     print(f"Please open your browser at {redirect_uri}")
@@ -123,5 +133,5 @@ def auth_code_flow():
         httpd.handle_request()
 
 
-# auth_code_flow()
-# get_tokens()
+#auth_code_flow()
+get_tokens()
