@@ -22,9 +22,7 @@ jobs:
         SPOTIFY_TOKEN: ${{ secrets.SPOTIFY_TOKEN }}
         ENV_FILE_JSON: ${{ secrets.ENV_FILE_JSON }}
         TOKEN_CODE_JSON: ${{ secrets.TOKEN_CODE_JSON }}
-        # TOKEN_CONFIG_JSON: ${{ secrets.TOKEN_CONFIG_JSON }}
         PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
-        # echo $TOKEN_CONFIG_JSON > botti/twitch/config.json
       run: |
         echo $SPOTIFY_TOKEN > .token.json
         echo $ENV_FILE_JSON > .env.json
