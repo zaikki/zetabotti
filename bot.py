@@ -12,13 +12,15 @@ logging.basicConfig(level=logging.INFO)
 
 
 cfg_env_config = load_config("./.env.json")
-STREAMER_CHANNEL = cfg_env_config["TWITCH_CHANNEL"]
-STREAMER_CHANNEL_ID = cfg_env_config["TWITCH_STREAMER_USER_ID"]
+TWITCH_STREAMER_CHANNEL = cfg_env_config["TWITCH_STREAMER_CHANNEL"]
+TWITCH_STREAMER_USER_ID = cfg_env_config["TWITCH_STREAMER_USER_ID"]
 TWITCH_CLIENT_ID = cfg_env_config["TWITCH_CLIENT_ID"]
 TWITCH_CLIENT_SECRET = cfg_env_config["TWITCH_CLIENT_SECRET"]
 TWITCH_SPOTIFY_REWARD_ID = cfg_env_config["TWITCH_SPOTIFY_REWARD_ID"]
 TWITCH_BOT_NICK = cfg_env_config["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
+
+TWITCH_BOT_ACCESS_TOKEN = cfg_env_config["TWITCH_BOT_ACCESS_TOKEN"]
 
 
 class AuthClientError(Exception):
@@ -30,7 +32,6 @@ class Bot(commands.Bot):
         ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         ### prefix can be a callable, which returns a list of strings or a string...
         ### initial_channels can also be a callable which returns a list of strings...
-        ### Testi triggeröidään
 
         ### Initialize tokens
         self.token = oauth()
@@ -48,7 +49,7 @@ class Bot(commands.Bot):
             client_id=TWITCH_CLIENT_ID,
             nick=TWITCH_BOT_NICK,
             prefix=TWITCH_BOT_PREFIX,
-            initial_channels=[STREAMER_CHANNEL],
+            initial_channels=[TWITCH_STREAMER_CHANNEL],
         )
         # asyncio.create_task(self.refresh_token())
 
@@ -57,7 +58,7 @@ class Bot(commands.Bot):
         CLIENT = twitchio.Client(token=self.token)
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
         topics = [
-            pubsub.channel_points(self.token)[STREAMER_CHANNEL_ID],
+            pubsub.channel_points(self.token)[TWITCH_STREAMER_USER_ID],
         ]
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
@@ -116,7 +117,7 @@ class Bot(commands.Bot):
 
     def check_if_channel_is_live(self, twitch_channels):
         streamer_channel = list(
-            filter(lambda obj: (obj.display_name == STREAMER_CHANNEL), twitch_channels)
+            filter(lambda obj: (obj.display_name == TWITCH_STREAMER_CHANNEL), twitch_channels)
         )
         if streamer_channel[0].live == True:
             return True
@@ -129,8 +130,8 @@ class Bot(commands.Bot):
         )
 
     async def turn_off_song_queue(self, ctx: commands.Context, que_on_off=False):
-        if ctx.author.display_name == STREAMER_CHANNEL:
-            logger.info(f"Author was {STREAMER_CHANNEL} and queue is {que_on_off}")
+        if ctx.author.display_name == TWITCH_STREAMER_CHANNEL:
+            logger.info(f"Author was {TWITCH_STREAMER_CHANNEL} and queue is {que_on_off}")
         else:
             logger.info(f"Nasty pleb: {ctx.author.display_name}")
 
@@ -141,15 +142,15 @@ class Bot(commands.Bot):
             return
 
         logger.info(f"{message.author.name}: {message.content}")
-        twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
+        twitch_channels = await self.search_channels(query=TWITCH_STREAMER_CHANNEL)
 
         is_channel_live = self.check_if_channel_is_live(twitch_channels)
         try:
-            if message.author.name == STREAMER_CHANNEL:
+            if message.author.name == TWITCH_STREAMER_CHANNEL:
                 # logger.info(f"User is broadcaster so allowing by pass")
                 await self.handle_commands(message)
             elif (is_channel_live is False) and message.content.startswith("!"):
-                logger.info(f"{STREAMER_CHANNEL} is NOT live")
+                logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live")
                 await self.send_channel_offline_notification(message)
             elif (is_channel_live is True) and message.content.startswith("!"):
                 await self.handle_commands(message)
@@ -194,10 +195,10 @@ class Bot(commands.Bot):
         await self.streamer_channel.send(data)
 
     async def event_channel_joined(self, channel: twitchio.Channel):
-        if channel.name != STREAMER_CHANNEL:
+        if channel.name != TWITCH_STREAMER_CHANNEL:
             return
         self.streamer_channel = channel
-        self.streamer_id = STREAMER_CHANNEL_ID
+        self.streamer_id = TWITCH_STREAMER_USER_ID
 
     async def event_token_expired(self):
         return oauth()
@@ -220,7 +221,7 @@ class Bot(commands.Bot):
         )
 
     async def twitch_pubsub_channel_points_handler(self, event):
-        twitch_channels = await self.search_channels(query=STREAMER_CHANNEL)
+        twitch_channels = await self.search_channels(query=TWITCH_STREAMER_CHANNEL)
         author_name = event.user.name
         arg = event.input
         blacklist = [keyword.lower() for keyword in self.blacklist]
@@ -285,31 +286,10 @@ class Bot(commands.Bot):
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
-    # data = json.load(open('.env.json'))
-
-    # f = open(".env", "w")
-
-    # for key, value in data.items():
-    #     f.write(f"{key.upper()}={value}\n")
-    # with open('.env', 'r') as f:
-    #     for line in f:
-    #         if 'str' in line:
-    #             break
-    # load_dotenv()           #load vars again to consider the new added one
-
-    # import json
-
-    # with open(".env.json", "r") as jsonfile:
-    #     data = json.load(jsonfile)
-    #     print("Read successful")
-    # print(data)
-
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()
-    # resultti = sp.spotify_get_song_info("https://open.spotify.com/track/5znIVOv7RucpCHGkbonySq?si=b48f7fb0f6954c73")
-    # print(resultti)
-
+    
     @CLIENT.event()
     async def event_token_expired():
         return oauth()

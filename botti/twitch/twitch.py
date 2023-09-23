@@ -6,8 +6,8 @@ from ..config import load_config
 logger = logging.getLogger(__name__)
 
 cfg = load_config(".env.json")
-STREAMER_CHANNEL = cfg["TWITCH_CHANNEL"]
-STREAMER_CHANNEL_ID = cfg["TWITCH_STREAMER_USER_ID"]
+TWITCH_STREAMER_CHANNEL = cfg["TWITCH_STREAMER_CHANNEL"]
+TWITCH_STREAMER_USER_ID = cfg["TWITCH_STREAMER_USER_ID"]
 TWITCH_CLIENT_ID = cfg["TWITCH_CLIENT_ID"]
 TWITCH_CLIENT_SECRET = cfg["TWITCH_CLIENT_SECRET"]
 
@@ -33,7 +33,7 @@ class TwitchChannelPoint:
         }
         # Define the request payload with reward information
         data = {
-            "broadcaster_id": STREAMER_CHANNEL_ID,
+            "broadcaster_id": TWITCH_STREAMER_USER_ID,
             "title": title,
             "cost": cost,
             "prompt": prompt,
