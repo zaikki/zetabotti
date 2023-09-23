@@ -17,7 +17,7 @@ expires_in = None
 logger = logging.getLogger(__name__)
 
 
-cfg = load_config("./botti/twitch/config.json")
+cfg = load_config(".env.json")
 redirect_uri = f'https://{cfg["server_host"]}:{cfg["server_port"]}/'
 
 
@@ -36,7 +36,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         # logger.info(f"Incoming request {path}")
         if not path.query:
             request_payload = {
-                "client_id": cfg["twitch_client_id"],
+                "client_id": cfg["TWITCH_CLIENT_ID"],
                 "force_verify": "false",
                 "redirect_uri": redirect_uri,
                 "response_type": "code",
@@ -125,8 +125,8 @@ def get_tokens():
     global expires_in
     url = "https://id.twitch.tv/oauth2/token"
     request_payload = {
-        "client_id": cfg["twitch_client_id"],
-        "client_secret": cfg["twitch_client_secret"],
+        "client_id": cfg["TWITCH_CLIENT_ID"],
+        "client_secret": cfg["TWITCH_CLIENT_SECRET"],
         "redirect_uri": redirect_uri,
     }
     if code:

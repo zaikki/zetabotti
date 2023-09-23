@@ -1,16 +1,11 @@
-import os
 import logging
 import twitchio
-import requests
 from twitchio.ext import commands, pubsub
 from botti.spotify.spotify import Spotify, blacklist
 from botti.twitch.twitch import TwitchChannelPoint
 import asyncio
 from botti.twitch.twitch_auth import oauth
 from botti.config import load_config
-from typing import List
-from dotenv import load_dotenv
-from pathlib import Path
 
 
 logging.basicConfig(level=logging.INFO)
