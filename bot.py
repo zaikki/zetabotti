@@ -3,10 +3,10 @@ import logging
 import twitchio
 import requests
 from twitchio.ext import commands, pubsub
-from spotify.spotify import Spotify, blacklist
-from twitch.twitch import TwitchChannelPoint
+from botti.spotify.spotify import Spotify, blacklist
+from botti.twitch.twitch import TwitchChannelPoint
 import asyncio
-from twitch.twitch_auth import oauth
+from botti.twitch.twitch_auth import oauth
 from config import load_config
 from typing import List
 import json
@@ -19,9 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 
-cfg = load_config("./twitch/config.json")
 cfg_env_config = load_config("./.env.json")
-print(cfg_env_config)
 
 STREAMER_CHANNEL = cfg_env_config["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = cfg_env_config["TWITCH_STREAMER_USER_ID"]
@@ -84,7 +82,7 @@ class Bot(commands.Bot):
         # print(type(int(STREAMER_CHANNEL_ID)))
 
         topics = [
-            pubsub.channel_points(self.token)[24316398],
+            pubsub.channel_points(self.token)[STREAMER_CHANNEL_ID],
         ]
 
         try:

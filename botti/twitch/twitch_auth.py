@@ -17,7 +17,7 @@ expires_in = None
 logger = logging.getLogger(__name__)
 
 
-cfg = load_config("./twitch/config.json")
+cfg = load_config("./botti/twitch/config.json")
 redirect_uri = f'https://{cfg["server_host"]}:{cfg["server_port"]}/'
 
 
@@ -76,9 +76,9 @@ def read_code():
     global access_token
     global refresh_token
     global expires_in
-    if exists("twitch/code.json"):
+    if exists("botti/twitch/code.json"):
         logger.info("Reading Twitch tokens")
-        with open("twitch/code.json", "r") as json_file:
+        with open("botti/twitch/code.json", "r") as json_file:
             code = json.load(json_file)
             access_token = code["access_token"]
             refresh_token = code["refresh_token"]
@@ -92,7 +92,7 @@ def write_code():
     global access_token
     global refresh_token
     global expires_in
-    with open("twitch/code.json", "w") as json_file:
+    with open("botti/twitch/code.json", "w") as json_file:
         logger.info("Writing Twitch tokens")
         json.dump(
             {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}, json_file

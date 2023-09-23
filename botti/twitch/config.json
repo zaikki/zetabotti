@@ -1,0 +1,10 @@
+{
+  "server_host": "localhost",
+  "server_port": 3000,
+  "twitch_server": "irc.chat.twitch.tv",
+  "twitch_port": 6667,
+  "twitch_client_id": "jvmglcy0xofiw8vzul6m5e5zj9dchk",
+  "twitch_client_secret": "cq98pfgrtmz5z9i9bs3u67r6pn0i7a",
+  "twitch_name": "zetabotti",
+  "twitch_channel": "#zaikki"
+}
