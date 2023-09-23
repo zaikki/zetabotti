@@ -9,7 +9,6 @@ import asyncio
 from botti.twitch.twitch_auth import oauth
 from botti.config import load_config
 from typing import List
-import json
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -18,31 +17,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 cfg_env_config = load_config("./.env.json")
-
 STREAMER_CHANNEL = cfg_env_config["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = cfg_env_config["TWITCH_STREAMER_USER_ID"]
-
 TWITCH_CLIENT_ID = cfg_env_config["TWITCH_CLIENT_ID"]
 TWITCH_CLIENT_SECRET = cfg_env_config["TWITCH_CLIENT_SECRET"]
-
 TWITCH_SPOTIFY_REWARD_ID = cfg_env_config["TWITCH_SPOTIFY_REWARD_ID"]
 TWITCH_BOT_NICK = cfg_env_config["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
 
-# STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
-# STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
-
-# TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
-# TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
-
-# TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
-# TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
-# TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
-
-
 class AuthClientError(Exception):
     pass
-
 
 class Bot(commands.Bot):
     def __init__(self):

@@ -6,13 +6,11 @@ from dotenv import load_dotenv
 from pathlib import Path
 from ..config import load_config
 
-
 logger = logging.getLogger(__name__)
-cfg = load_config(".env.json")
 
+cfg = load_config(".env.json")
 STREAMER_CHANNEL = cfg["TWITCH_CHANNEL"]
 STREAMER_CHANNEL_ID = cfg["TWITCH_STREAMER_USER_ID"]
-
 TWITCH_CLIENT_ID = cfg["TWITCH_CLIENT_ID"]
 TWITCH_CLIENT_SECRET = cfg["TWITCH_CLIENT_SECRET"]
 
