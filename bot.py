@@ -20,8 +20,10 @@ TWITCH_SPOTIFY_REWARD_ID = cfg_env_config["TWITCH_SPOTIFY_REWARD_ID"]
 TWITCH_BOT_NICK = cfg_env_config["TWITCH_BOT_NICK"]
 TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
 
+
 class AuthClientError(Exception):
     pass
+
 
 class Bot(commands.Bot):
     def __init__(self):

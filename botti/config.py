@@ -1,5 +1,6 @@
 import json
 
+
 def load_config(path):
     cfg = None
     if not cfg:

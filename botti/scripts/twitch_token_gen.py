@@ -31,13 +31,13 @@ import requests
 import json
 
 
-
 def load_config(path):
     cfg = None
     if not cfg:
         with open(path, "r") as json_file:
             cfg = json.load(json_file)
     return cfg
+
 
 cfg = load_config("../../.env.json")
 print(cfg)
@@ -123,7 +123,10 @@ def get_tokens():
 def auth_code_flow():
     httpd = HTTPServer((host, port), HandleRequests)
     httpd.socket = ssl.wrap_socket(
-        httpd.socket, keyfile="../twitch/key.pem", certfile="../twitch/cert.pem", server_side=True
+        httpd.socket,
+        keyfile="../twitch/key.pem",
+        certfile="../twitch/cert.pem",
+        server_side=True,
     )
 
     print(f"Please open your browser at {redirect_uri}")
@@ -133,5 +136,5 @@ def auth_code_flow():
         httpd.handle_request()
 
 
-#auth_code_flow()
+# auth_code_flow()
 get_tokens()

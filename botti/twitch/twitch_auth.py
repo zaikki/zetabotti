@@ -1,5 +1,4 @@
 # Twitch OAuth Handling
-
 from ..config import load_config
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -95,7 +94,12 @@ def write_code():
     with open("botti/twitch/code.json", "w") as json_file:
         logger.info("Writing Twitch tokens")
         json.dump(
-            {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}, json_file
+            {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "expires_in": expires_in,
+            },
+            json_file,
         )
 
 
