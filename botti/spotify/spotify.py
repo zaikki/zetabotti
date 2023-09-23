@@ -1,4 +1,4 @@
-from config import load_config
+from ..config import load_config
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os

@@ -27,8 +27,8 @@ jobs:
       run: |
         echo $SPOTIFY_TOKEN > .token.json
         echo $ENV_FILE_JSON > .env.json
-        echo $TOKEN_CODE_JSON > twitch/code.json
-        echo $TOKEN_CONFIG_JSON > twitch/config.json
+        echo $TOKEN_CODE_JSON > botti/twitch/code.json
+        echo $TOKEN_CONFIG_JSON > botti/twitch/config.json
         
         docker build . --file Dockerfile -t zetabotti
         docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest

@@ -7,7 +7,7 @@ from botti.spotify.spotify import Spotify, blacklist
 from botti.twitch.twitch import TwitchChannelPoint
 import asyncio
 from botti.twitch.twitch_auth import oauth
-from config import load_config
+from botti.config import load_config
 from typing import List
 import json
 from dotenv import load_dotenv
@@ -15,8 +15,6 @@ from pathlib import Path
 
 
 logging.basicConfig(level=logging.INFO)
-
-
 
 
 cfg_env_config = load_config("./.env.json")
@@ -75,16 +73,11 @@ class Bot(commands.Bot):
 
     async def __ainit__(self) -> None:
         asyncio.create_task(self.refresh_token())
-
         CLIENT = twitchio.Client(token=self.token)
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
-        print(f"DEBUGGING {STREAMER_CHANNEL_ID}")
-        # print(type(int(STREAMER_CHANNEL_ID)))
-
         topics = [
             pubsub.channel_points(self.token)[STREAMER_CHANNEL_ID],
         ]
-
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
         except twitchio.HTTPException:
@@ -328,8 +321,7 @@ if __name__ == "__main__":
     #     data = json.load(jsonfile)
     #     print("Read successful")
     # print(data)
-    
-    
+
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()

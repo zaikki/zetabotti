@@ -1,6 +1,6 @@
 # Twitch OAuth Handling
 
-from config import load_config
+from ..config import load_config
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
