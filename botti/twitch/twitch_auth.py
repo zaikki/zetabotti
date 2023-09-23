@@ -146,8 +146,8 @@ def get_tokens():
         access_token = r["access_token"]
         refresh_token = r["refresh_token"]
         expires_in = r["expires_in"]
-        logger.info(f"Access token: {access_token}")
-        logger.info(f"Refresh token: {refresh_token}")
+        # logger.info(f"Access token: {access_token}")
+        # logger.info(f"Refresh token: {refresh_token}")
         logger.info(f"Expires in: {expires_in}")
     except:
         logger.error("Unexpected response on redeeming auth code:")

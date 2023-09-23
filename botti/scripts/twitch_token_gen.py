@@ -109,8 +109,8 @@ def get_tokens():
     try:
         access_token = r["access_token"]
         refresh_token = r["refresh_token"]
-        print(f"Access token: {access_token}")
-        print(f"Refresh token: {refresh_token}")
+        # print(f"Access token: {access_token}")
+        # print(f"Refresh token: {refresh_token}")
     except:
         print("Unexpected response on redeeming auth code:")
         print(r)
