@@ -3,9 +3,11 @@ FROM python:3.11-slim-bookworm
 RUN apt-get update -y && apt install -y pip
 RUN apt-get -y upgrade
 
+WORKDIR /code
+# COPY . .
+
 ADD bin/ bin/
-ADD botti/spotify/ botti/spotify/
-ADD botti/twitch/ botti/twitch/
+ADD botti/ botti/
 ADD .env.json .env.json
 ADD bot.py bot.py
 ADD .token.json .token.json
