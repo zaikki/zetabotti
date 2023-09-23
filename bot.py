@@ -65,6 +65,7 @@ class Bot(commands.Bot):
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
         except twitchio.HTTPException:
+            print("we are in http expection, need to refresh something")
             pass
         return CLIENT
 
