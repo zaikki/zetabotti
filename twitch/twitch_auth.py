@@ -1,6 +1,6 @@
 # Twitch OAuth Handling
 
-from .config import load_config
+from config import load_config
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
@@ -17,7 +17,7 @@ expires_in = None
 logger = logging.getLogger(__name__)
 
 
-cfg = load_config()
+cfg = load_config("./twitch/config.json")
 redirect_uri = f'https://{cfg["server_host"]}:{cfg["server_port"]}/'
 
 

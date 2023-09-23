@@ -1,26 +1,19 @@
+from config import load_config
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import logging
 from .blacklist import blacklist
 
+
 SCOPE = "user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-read-private"
-# logger = logging.getLogger('bot_logger')
 logger = logging.getLogger(__name__)
-
-from dotenv import load_dotenv
-from pathlib import Path
-
-
-logger = logging.getLogger(__name__)
-dotenv_path = Path('../.env')
-load_dotenv(dotenv_path=dotenv_path)
-REDIRECT_URI=os.environ["SPOTIPY_REDIRECT_URI"]
-
+cfg = load_config(".env.json")
 
 class Spotify:
     # init method or constructor
     def __init__(self):
+        REDIRECT_URI=cfg["SPOTIPY_REDIRECT_URI"]
         self.sp = spotipy.Spotify(
             auth_manager=SpotifyOAuth(
                 scope=SCOPE,
@@ -28,6 +21,8 @@ class Spotify:
                 redirect_uri=REDIRECT_URI,
                 show_dialog=True,
                 cache_path=".token.json",
+                client_id=cfg["SPOTIPY_CLIENT_ID"],
+                client_secret=cfg["SPOTIPY_CLIENT_SECRET"]
             )
         )
         self.blacklist = blacklist

@@ -4,16 +4,17 @@ import os
 from .twitch_auth import oauth
 from dotenv import load_dotenv
 from pathlib import Path
+from config import load_config
 
 
 logger = logging.getLogger(__name__)
-dotenv_path = Path('../.env')
-load_dotenv(dotenv_path=dotenv_path)
-STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
-STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
+cfg = load_config(".env.json")
 
-TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
-TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
+STREAMER_CHANNEL = cfg["TWITCH_CHANNEL"]
+STREAMER_CHANNEL_ID = cfg["TWITCH_STREAMER_USER_ID"]
+
+TWITCH_CLIENT_ID = cfg["TWITCH_CLIENT_ID"]
+TWITCH_CLIENT_SECRET = cfg["TWITCH_CLIENT_SECRET"]
 
 
 class TwitchChannelPoint:
@@ -21,6 +22,8 @@ class TwitchChannelPoint:
         ### Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         ### prefix can be a callable, which returns a list of strings or a string...
         ### initial_channels can also be a callable which returns a list of strings...
+        
+        
         self.token = oauth() # Get user token
 
     def create_channel_point_reward(

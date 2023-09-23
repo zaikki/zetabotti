@@ -7,7 +7,7 @@ from spotify.spotify import Spotify, blacklist
 from twitch.twitch import TwitchChannelPoint
 import asyncio
 from twitch.twitch_auth import oauth
-from twitch.config import load_config
+from config import load_config
 from typing import List
 import json
 from dotenv import load_dotenv
@@ -19,7 +19,29 @@ logging.basicConfig(level=logging.INFO)
 
 
 
-cfg = load_config()
+cfg = load_config("./twitch/config.json")
+cfg_env_config = load_config("./.env.json")
+print(cfg_env_config)
+
+STREAMER_CHANNEL = cfg_env_config["TWITCH_CHANNEL"]
+STREAMER_CHANNEL_ID = cfg_env_config["TWITCH_STREAMER_USER_ID"]
+
+TWITCH_CLIENT_ID = cfg_env_config["TWITCH_CLIENT_ID"]
+TWITCH_CLIENT_SECRET = cfg_env_config["TWITCH_CLIENT_SECRET"]
+
+TWITCH_SPOTIFY_REWARD_ID = cfg_env_config["TWITCH_SPOTIFY_REWARD_ID"]
+TWITCH_BOT_NICK = cfg_env_config["TWITCH_BOT_NICK"]
+TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
+
+# STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
+# STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
+
+# TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
+# TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
+
+# TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
+# TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
+# TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
 
 
 class AuthClientError(Exception):
@@ -290,23 +312,26 @@ class Bot(commands.Bot):
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
-    data = json.load(open('.env.json'))
+    # data = json.load(open('.env.json'))
 
-    f = open(".env", "w")
+    # f = open(".env", "w")
 
-    for key, value in data.items():
-        f.write(f"{key.upper()}={value}\n")
-    print(open(".env", "r"))
-    load_dotenv()           #load vars again to consider the new added one
-    STREAMER_CHANNEL = os.environ["TWITCH_CHANNEL"]
-    STREAMER_CHANNEL_ID = os.environ["TWITCH_STREAMER_USER_ID"]
+    # for key, value in data.items():
+    #     f.write(f"{key.upper()}={value}\n")
+    # with open('.env', 'r') as f:
+    #     for line in f:
+    #         if 'str' in line:
+    #             break
+    # load_dotenv()           #load vars again to consider the new added one
 
-    TWITCH_CLIENT_ID = os.environ["TWITCH_CLIENT_ID"]
-    TWITCH_CLIENT_SECRET = os.environ["TWITCH_CLIENT_SECRET"]
+    # import json
 
-    TWITCH_SPOTIFY_REWARD_ID = os.environ["TWITCH_SPOTIFY_REWARD_ID"]
-    TWITCH_BOT_NICK = os.environ["TWITCH_BOT_NICK"]
-    TWITCH_BOT_PREFIX = os.environ["TWITCH_BOT_PREFIX"]
+    # with open(".env.json", "r") as jsonfile:
+    #     data = json.load(jsonfile)
+    #     print("Read successful")
+    # print(data)
+    
+    
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     sp = Spotify()
