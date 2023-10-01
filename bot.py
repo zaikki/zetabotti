@@ -142,8 +142,12 @@ class Bot(commands.Bot):
             return
 
         logger.info(f"{message.author.name}: {message.content}")
-        twitch_channels = await self.search_channels(query=TWITCH_STREAMER_CHANNEL)
-
+        try:
+            twitch_channels = await self.search_channels(query=TWITCH_STREAMER_CHANNEL)
+        except twitchio.HTTPException:
+            logger.info("Fetching channels http error, need to refresh token")
+            self.token = self.refresh_token()
+        
         is_channel_live = self.check_if_channel_is_live(twitch_channels)
         try:
             if message.author.name == TWITCH_STREAMER_CHANNEL:
