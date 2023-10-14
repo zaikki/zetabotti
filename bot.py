@@ -94,15 +94,19 @@ class Bot(commands.Bot):
         )
         # asyncio.create_task(self.refresh_token())
 
-    async def __ainit__(self) -> None:
+    async def __ainit__(self):
         asyncio.create_task(self.refresh_token())
+        print("After create task")
         CLIENT = twitchio.Client(token=self.token)
+        print("After client creation")
         CLIENT.pubsub = pubsub.PubSubPool(CLIENT)
+        print("After pubsub creation")
         topics = [
             pubsub.channel_points(self.token)[TWITCH_STREAMER_USER_ID],
         ]
         try:
             await CLIENT.pubsub.subscribe_topics(topics)
+            print("Inside pubsub CLIENT subscribe")
         except twitchio.HTTPException:
             print("we are in http expection, need to refresh something")
             pass
@@ -334,6 +338,7 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
+    print("CLIENT CREATED IN MAIN")
     sp = Spotify()
     
     @CLIENT.event()
