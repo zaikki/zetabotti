@@ -337,7 +337,7 @@ class Bot(commands.Bot):
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
-    CLIENT = bot.loop.run_forever(bot.__ainit__())
+    CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     print("CLIENT CREATED IN MAIN")
     sp = Spotify()
     
