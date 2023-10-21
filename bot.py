@@ -337,16 +337,16 @@ class Bot(commands.Bot):
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     bot = Bot()
-    # CLIENT = bot.loop.run_until_complete(bot.__ainit__())
-    # print("CLIENT CREATED IN MAIN")
+    CLIENT = bot.loop.run_forever(bot.__ainit__())
+    print("CLIENT CREATED IN MAIN")
     sp = Spotify()
     
-    # @CLIENT.event()
-    # async def event_token_expired():
-    #     return oauth()
+    @CLIENT.event()
+    async def event_token_expired():
+        return oauth()
 
-    # @CLIENT.event()
-    # async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-    #     await bot.twitch_pubsub_channel_points_handler(event)
+    @CLIENT.event()
+    async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
+        await bot.twitch_pubsub_channel_points_handler(event)
 
     bot.run()
