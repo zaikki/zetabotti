@@ -23,6 +23,24 @@ TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
 TWITCH_BOT_ACCESS_TOKEN = cfg_env_config["TWITCH_BOT_ACCESS_TOKEN"]
 
 
+
+import websocket
+import threading, time
+
+def on_close(ws):
+    # print('disconnected from server')
+    print ("Retry : %s" % time.ctime())
+    time.sleep(10)
+    connect_websocket() # retry per 10 seconds
+def on_open(ws):
+    print('connection established')
+def connect_websocket():
+    ws = websocket.WebSocketApp("ws://127.0.0.1:3000", on_open = on_open, on_close = on_close)
+    wst = threading.Thread(target=ws.run_forever)
+    wst.daemon = True
+    wst.start()
+
+
 # import asyncio
 # import websockets
 
@@ -291,12 +309,12 @@ class Bot(commands.Bot):
         ):
             if "https://open.spotify.com/track/" in arg:
                 song_info_request = sp.spotify_get_song_info(arg)
-                if song_info_request:
-                    logger.info(
-                        f"User {author_name} tried to find song with slur words"
-                    )
-                    await self.send_result_to_chat(data=f"Dirty song. Get lost.")
-                    return
+                # if song_info_request:
+                #     logger.info(
+                #         f"User {author_name} tried to find song with slur words"
+                #     )
+                #     await self.send_result_to_chat(data=f"Dirty song. Get lost.")
+                #     return
                 sp.spotify_add_song_to_queue(arg)
                 spotify_artists_name = song_info_request["artists"]
                 spotify_track_name = song_info_request["track_name"]
