@@ -24,21 +24,21 @@ TWITCH_BOT_ACCESS_TOKEN = cfg_env_config["TWITCH_BOT_ACCESS_TOKEN"]
 
 
 
-import websocket
-import threading, time
+# import websocket
+# import threading, time
 
-def on_close(ws):
-    # print('disconnected from server')
-    print ("Retry : %s" % time.ctime())
-    time.sleep(10)
-    connect_websocket() # retry per 10 seconds
-def on_open(ws):
-    print('connection established')
-def connect_websocket():
-    ws = websocket.WebSocketApp("ws://127.0.0.1:3000", on_open = on_open, on_close = on_close)
-    wst = threading.Thread(target=ws.run_forever)
-    wst.daemon = True
-    wst.start()
+# def on_close(ws):
+#     # print('disconnected from server')
+#     print ("Retry : %s" % time.ctime())
+#     time.sleep(10)
+#     connect_websocket() # retry per 10 seconds
+# def on_open(ws):
+#     print('connection established')
+# def connect_websocket():
+#     ws = websocket.WebSocketApp("ws://127.0.0.1:3000", on_open = on_open, on_close = on_close)
+#     wst = threading.Thread(target=ws.run_forever)
+#     wst.daemon = True
+#     wst.start()
 
 
 # import asyncio

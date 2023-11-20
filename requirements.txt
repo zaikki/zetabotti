@@ -4,4 +4,4 @@ twitchio
 spotipy
 twitchAPI
 PyYAML
-websockets
+websockets==11.0.3
