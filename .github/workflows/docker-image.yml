@@ -34,5 +34,5 @@ jobs:
 
     - name: Trigger Portainer webhook
       run: | 
-        curl --user admin:$PORTAINER_PASSWORD -X POST "https://portainer.zaikki.com/api/stacks/webhooks/4f7f585d-0206-4f57-98f9-1bc3b1d6985c?tag=latest"
+        curl --user admin:$PORTAINER_PASSWORD -X POST "https://portainer.zaikki.com/api/stacks/webhooks/cb28e8b1-5ff4-40c6-8667-6422a6f0bb00?tag=latest"
         echo test
