@@ -102,7 +102,8 @@ class Spotify:
                 lower_value = str(value).lower()
                 for keyword in keywords:
                     lower_keyword = keyword.lower()
-                    if lower_keyword in lower_value:
+                    # Split the value into words and check if the keyword is one of the words
+                    if lower_keyword in lower_value.split():
                         return True
             return False
 
