@@ -22,66 +22,6 @@ TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
 
 TWITCH_BOT_ACCESS_TOKEN = cfg_env_config["TWITCH_BOT_ACCESS_TOKEN"]
 
-
-
-# import websocket
-# import threading, time
-
-# def on_close(ws):
-#     # print('disconnected from server')
-#     print ("Retry : %s" % time.ctime())
-#     time.sleep(10)
-#     connect_websocket() # retry per 10 seconds
-# def on_open(ws):
-#     print('connection established')
-# def connect_websocket():
-#     ws = websocket.WebSocketApp("ws://127.0.0.1:3000", on_open = on_open, on_close = on_close)
-#     wst = threading.Thread(target=ws.run_forever)
-#     wst.daemon = True
-#     wst.start()
-
-
-# import asyncio
-# import websockets
-
-# async def get_new_token():
-#     # Implement your logic to get a new token here
-#     # For example, you can make an API request to obtain a new token
-#     new_token = "YOUR_NEW_TOKEN"
-#     return new_token
-
-# async def websocket_connection():
-#     token = "YOUR_INITIAL_TOKEN"
-#     websocket_url = "wss://your.websocket.url"  # Replace with the WebSocket URL
-
-#     while True:
-#         try:
-#             async with websockets.connect(websocket_url, extra_headers=[("Authorization", f"Bearer {token}")]) as websocket:
-#                 print("WebSocket connection established.")
-                
-#                 # Your WebSocket communication logic goes here
-#                 # You can send and receive messages using the websocket object
-                
-#                 # To simulate a token refresh (replace with your own logic)
-#                 if need_token_refresh():
-#                     new_token = await get_new_token()
-#                     token = new_token
-#                     print("Token refreshed.")
-#         except websockets.exceptions.ConnectionClosedError as e:
-#             print(f"WebSocket connection closed: {e}")
-#             # Handle any connection closed errors here, such as reconnection logic
-#         except Exception as e:
-#             print(f"WebSocket error: {e}")
-#             # Handle other exceptions that might occur during the connection
-
-#         # Sleep for a certain duration before attempting to reconnect
-#         await asyncio.sleep(10)  # Adjust the sleep duration as needed
-
-# if __name__ == "__main__":
-#     asyncio.get_event_loop().run_until_complete(websocket_connection())
-
-
-
 class AuthClientError(Exception):
     pass
 
@@ -143,6 +83,13 @@ class Bot(commands.Bot):
             except Exception as e:
                 # Handle any exceptions that might occur during token refresh
                 print(f"Token refresh failed: {e}")
+                await asyncio.sleep(300)
+
+            try:
+                # Attempt to reconnect
+                await self.__ainit__()
+            except Exception as e:
+                print(f"Reconnection failed: {e}")
                 await asyncio.sleep(300)
 
     def renew_access_token(self, func):
