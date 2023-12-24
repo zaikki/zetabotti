@@ -85,12 +85,12 @@ class Bot(commands.Bot):
                 print(f"Token refresh failed: {e}")
                 await asyncio.sleep(300)
 
-            try:
-                # Attempt to reconnect
-                await self.__ainit__()
-            except Exception as e:
-                print(f"Reconnection failed: {e}")
-                await asyncio.sleep(300)
+            # try:
+            #     # Attempt to reconnect
+            #     await self.__ainit__()
+            # except Exception as e:
+            #     print(f"Reconnection failed: {e}")
+            #     await asyncio.sleep(300)
 
     def renew_access_token(self, func):
         def wrapper(*args, **kwargs):
