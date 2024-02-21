@@ -5,3 +5,4 @@ spotipy
 twitchAPI
 PyYAML
 websockets==11.0.3
+pipenv
