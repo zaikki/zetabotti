@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@main
     - name: Login to GitHub Package Registry
       env:
         ZDOCKER_PASSWORD: ${{ secrets.ZDOCKER_PASSWORD }}
@@ -27,11 +27,9 @@ jobs:
         echo $SPOTIFY_TOKEN > .token.json
         echo $ENV_FILE_JSON > .env.json
         echo $TOKEN_CODE_JSON > botti/twitch/code.json
-        
         docker build . --file Dockerfile -t zetabotti
         docker tag zetabotti:latest zdocker.zaikki.com/zetabotti:latest
         docker push zdocker.zaikki.com/zetabotti:latest
-
     - name: Trigger Portainer webhook
       run: | 
         curl --user admin:$PORTAINER_PASSWORD -X POST "https://portainer.zaikki.com/api/stacks/webhooks/cb28e8b1-5ff4-40c6-8667-6422a6f0bb00?tag=latest"
