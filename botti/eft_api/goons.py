@@ -29,5 +29,3 @@ class Goons:
                 return "Error fetching data"
         except requests.exceptions.RequestException as e:
             return "Error fetching data"
-
-    formatted_data = find_goons()
