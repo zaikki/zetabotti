@@ -210,10 +210,10 @@ class Bot(commands.Bot):
     @commands.command(name="goons")
     async def eft_goons(self, ctx: commands.Context):
         resp_json = goons.find_goons_tarkov_pal()
-        current_map = resp_json["Current Map"]
-        location = resp_json["Location"]
-        time = resp_json["Time"]
-        time_submitted = resp_json["TimeSubmitted"]
+        current_map = resp_json["Current Map"][0]
+        location = resp_json["Location"][0]
+        time = resp_json["Time"][0]
+        time_submitted = resp_json["TimeSubmitted"][0]
         formatted_data = goons.find_goons()
         if isinstance(formatted_data, dict):
             map_value = formatted_data['map']
