@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
 class Goons:
 
@@ -28,6 +29,13 @@ class Goons:
                 return "Data not found"
         else:
             return "Error fetching data"
+        
+    def find_goons_tarkov_pal(self):
+        url = "https://tarkovpal.com/api"
+        session = requests.Session()
+        response = session.get(url)
+        resp_json = response.json()
+        return(resp_json)
         
 # goons = Goons()
 # print(goons.find_goons())

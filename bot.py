@@ -209,6 +209,11 @@ class Bot(commands.Bot):
 
     @commands.command(name="goons")
     async def eft_goons(self, ctx: commands.Context):
+        resp_json = goons.find_goons_tarkov_pal()
+        current_map = resp_json["Current Map"]
+        location = resp_json["Location"]
+        time = resp_json["Time"]
+        time_submitted = resp_json["TimeSubmitted"]
         formatted_data = goons.find_goons()
         if isinstance(formatted_data, dict):
             map_value = formatted_data['map']
@@ -218,7 +223,10 @@ class Bot(commands.Bot):
             timestamp_value = formatted_data
         logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {map_value}. Update timestamp: {timestamp_value}")
         await self.send_result_to_chat(
-                data=f"Goons are currently in: {map_value}. Update timestamp: {timestamp_value}"
+                data=f"According to Goonhunter Goons are currently in: {map_value}. Update timestamp: {timestamp_value}"
+            )
+        await self.send_result_to_chat(
+                data=f"According to TarkovPal Goons are currently in: {current_map}. Update timestamp: {time}"
             )
 
     async def send_result_to_chat(self, data):
