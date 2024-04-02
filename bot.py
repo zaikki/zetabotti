@@ -3,7 +3,7 @@ import twitchio
 from twitchio.ext import commands, pubsub
 from botti.spotify.spotify import Spotify, blacklist
 from botti.twitch.twitch import TwitchChannelPoint
-from botti.eft_api.goons import find_goons
+from botti.eft_api.goons import Goons
 import asyncio
 from botti.twitch.twitch_auth import oauth
 from botti.config import load_config
@@ -209,7 +209,7 @@ class Bot(commands.Bot):
 
     @commands.command(name="goons")
     async def eft_goons(self, ctx: commands.Context):
-        formatted_data = await self.find_goons()
+        formatted_data = goons.find_goons()
         if isinstance(formatted_data, dict):
             first_value = formatted_data['map']
         else:
@@ -319,6 +319,7 @@ if __name__ == "__main__":
     CLIENT = bot.loop.run_until_complete(bot.__ainit__())
     print("CLIENT CREATED IN MAIN")
     sp = Spotify()
+    goons = Goons()
     
     @CLIENT.event()
     async def event_token_expired():
