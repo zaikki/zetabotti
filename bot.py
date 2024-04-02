@@ -208,13 +208,16 @@ class Bot(commands.Bot):
 
 
     @commands.command(name="goons")
-    async def eft_goons(self, ctx: commands.Context, on_off):
+    async def eft_goons(self, ctx: commands.Context):
         formatted_data = await self.find_goons()
         if isinstance(formatted_data, dict):
             first_value = formatted_data['map']
         else:
             first_value = formatted_data
-        print(f'Currently at: {first_value}')
+        logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {first_value}")
+        await self.send_result_to_chat(
+                data=f"Goons are currently in: {first_value}"
+            )
 
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
