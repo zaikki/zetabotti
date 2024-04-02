@@ -3,6 +3,7 @@ import twitchio
 from twitchio.ext import commands, pubsub
 from botti.spotify.spotify import Spotify, blacklist
 from botti.twitch.twitch import TwitchChannelPoint
+from botti.eft_api.goons import find_goons
 import asyncio
 from botti.twitch.twitch_auth import oauth
 from botti.config import load_config
@@ -204,6 +205,16 @@ class Bot(commands.Bot):
             return
         result = f"https://open.spotify.com/track/{search_result}"
         await self.send_result_to_chat(data=f"{result}")
+
+
+    @commands.command(name="goons")
+    async def eft_goons(self, ctx: commands.Context, on_off):
+        formatted_data = await self.find_goons()
+        if isinstance(formatted_data, dict):
+            first_value = formatted_data['map']
+        else:
+            first_value = formatted_data
+        print(f'Currently at: {first_value}')
 
     async def send_result_to_chat(self, data):
         await self.streamer_channel.send(data)
