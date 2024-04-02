@@ -29,5 +29,5 @@ class Goons:
         else:
             return "Error fetching data"
         
-goons = Goons()
-print(goons.find_goons())
+# goons = Goons()
+# print(goons.find_goons())
