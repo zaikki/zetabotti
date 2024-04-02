@@ -211,12 +211,14 @@ class Bot(commands.Bot):
     async def eft_goons(self, ctx: commands.Context):
         formatted_data = goons.find_goons()
         if isinstance(formatted_data, dict):
-            first_value = formatted_data['map']
+            map_value = formatted_data['map']
+            timestamp_value = formatted_data['timestamp']
         else:
-            first_value = formatted_data
-        logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {first_value}")
+            map_value = formatted_data
+            timestamp_value = formatted_data
+        logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {map_value}. Update timestamp: {timestamp_value}")
         await self.send_result_to_chat(
-                data=f"Goons are currently in: {first_value}"
+                data=f"Goons are currently in: {map_value}. Update timestamp: {timestamp_value}"
             )
 
     async def send_result_to_chat(self, data):
