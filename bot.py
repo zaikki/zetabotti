@@ -166,9 +166,9 @@ class Bot(commands.Bot):
             if message.author.name == TWITCH_STREAMER_CHANNEL:
                 # logger.info(f"User is broadcaster so allowing by pass")
                 await self.handle_commands(message)
-            elif (is_channel_live is False) and message.content.startswith("!"):
-                logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live")
-                await self.send_channel_offline_notification(message)
+            # elif (is_channel_live is False) and message.content.startswith("!"):
+            #     logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live")
+            #     await self.send_channel_offline_notification(message)
             elif (is_channel_live is False) and any(message.content.startswith(word) for word in ALLOWED_COMMANDS):
                 logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live, but command was inside allowed commands.")
                 await self.handle_commands(message)
