@@ -23,6 +23,8 @@ TWITCH_BOT_PREFIX = cfg_env_config["TWITCH_BOT_PREFIX"]
 
 TWITCH_BOT_ACCESS_TOKEN = cfg_env_config["TWITCH_BOT_ACCESS_TOKEN"]
 
+ALLOWED_COMMANDS = ["!goons"]
+
 class AuthClientError(Exception):
     pass
 
@@ -167,6 +169,9 @@ class Bot(commands.Bot):
             elif (is_channel_live is False) and message.content.startswith("!"):
                 logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live")
                 await self.send_channel_offline_notification(message)
+            elif (is_channel_live is False) and message.content in ALLOWED_COMMANDS:
+                logger.info(f"{TWITCH_STREAMER_CHANNEL} is NOT live, but command was inside allowed commands.")
+                await self.handle_commands(message)
             elif (is_channel_live is True) and message.content.startswith("!"):
                 await self.handle_commands(message)
         except Exception as e:
