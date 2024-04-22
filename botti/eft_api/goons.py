@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import json
 
 class Goons:
 
@@ -17,7 +16,6 @@ class Goons:
             # Assuming the data is in a table, find the second row
             table = soup.find('table')
             rows = table.find_all('tr')
-            print(rows)
             if len(rows) > 1:
                 second_row = rows[2]
                 cells = second_row.find_all('td')

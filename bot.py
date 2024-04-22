@@ -7,6 +7,9 @@ from botti.eft_api.goons import Goons
 import asyncio
 from botti.twitch.twitch_auth import oauth
 from botti.config import load_config
+from datetime import datetime
+from dateutil.parser import parse
+import pytz
 
 
 logging.basicConfig(level=logging.INFO)
@@ -214,24 +217,30 @@ class Bot(commands.Bot):
 
     @commands.command(name="goons")
     async def eft_goons(self, ctx: commands.Context):
-        resp_json = goons.find_goons_tarkov_pal()
-        current_map = resp_json["Current Map"][0]
-        location = resp_json["Location"][0]
-        time = resp_json["Time"][0]
-        time_submitted = resp_json["TimeSubmitted"][0]
-        formatted_data = goons.find_goons()
-        if isinstance(formatted_data, dict):
-            map_value = formatted_data['map']
-            timestamp_value = formatted_data['timestamp']
+        tarkovpal_resp_json = goons.find_goons_tarkov_pal()
+        tarkovpal_current_map = tarkovpal_resp_json["Current Map"][0]
+        tarkovpal_location = tarkovpal_resp_json["Location"][0]
+        tarkovpal_time = tarkovpal_resp_json["Time"][0]
+        tarkovpal_time_submitted = tarkovpal_resp_json["TimeSubmitted"][0]
+        formatted_data_goonhunter = goons.find_goons()
+        if isinstance(formatted_data_goonhunter, dict):
+            goonhunter_current_map = formatted_data_goonhunter['map']
+            goonhunter_timestamp_value = formatted_data_goonhunter['timestamp']
         else:
-            map_value = formatted_data
-            timestamp_value = formatted_data
-        logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {map_value}. Update timestamp: {timestamp_value}")
+            goonhunter_current_map = formatted_data_goonhunter
+            goonhunter_timestamp_value = formatted_data_goonhunter
+
+        # Get the timezone object for Finland
+        tz_central = pytz.timezone('US/Central')
+        datetime_central = datetime.now(tz_central)
+        tarkovpal_since_last_report = parse(datetime_central.strftime("%B %d, %Y, %I:%M %p"))- parse(tarkovpal_time)
+        goonhunter_since_last_report = parse(datetime_central.strftime("%B %d, %Y, %I:%M %p")) - parse(goonhunter_timestamp_value.strftime("%B %d, %Y, %I:%M %p"))
+        logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {goonhunter_current_map}. Update timestamp: {goonhunter_timestamp_value}")
         await self.send_result_to_chat(
-                data=f"According to Goonhunter Goons are currently in: {map_value}. Update timestamp: {timestamp_value}"
+                data=f"According to Goonhunter Goons are currently in: {goonhunter_current_map}. Since last update: {goonhunter_since_last_report}. Time when last updated: {goonhunter_timestamp_value}"
             )
         await self.send_result_to_chat(
-                data=f"According to TarkovPal Goons are currently in: {current_map}. Update timestamp: {time}"
+                data=f"According to TarkovPal Goons are currently in: {tarkovpal_current_map}. Since last update: {tarkovpal_since_last_report}. Time when last updated: {tarkovpal_time}"
             )
 
     async def send_result_to_chat(self, data):
