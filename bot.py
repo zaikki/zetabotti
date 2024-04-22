@@ -233,8 +233,9 @@ class Bot(commands.Bot):
         # Get the timezone object for Finland
         tz_central = pytz.timezone('US/Central')
         datetime_central = datetime.now(tz_central)
+        goonhunter_since = parse(goonhunter_timestamp_value)
         tarkovpal_since_last_report = parse(datetime_central.strftime("%B %d, %Y, %I:%M %p"))- parse(tarkovpal_time)
-        goonhunter_since_last_report = parse(datetime_central.strftime("%B %d, %Y, %I:%M %p")) - goonhunter_timestamp_value
+        goonhunter_since_last_report = parse(datetime_central.strftime("%B %d, %Y, %I:%M %p")) - goonhunter_since
         logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {goonhunter_current_map}. Update timestamp: {goonhunter_timestamp_value}")
         await self.send_result_to_chat(
                 data=f"According to Goonhunter Goons are currently in: {goonhunter_current_map}. Since last update: {goonhunter_since_last_report}. Time when last updated: {goonhunter_timestamp_value}"
