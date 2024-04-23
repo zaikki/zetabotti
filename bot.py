@@ -239,10 +239,10 @@ class Bot(commands.Bot):
         
         logger.info(f"Twitch user {ctx.author.name} fetched goons current location. Goons are currently in: {goonhunter_current_map}. Update timestamp: {goonhunter_timestamp_value}")
         await self.send_result_to_chat(
-                data=f"According to Goonhunter Goons are currently in: {goonhunter_current_map}. Since last update: {goonhunter_since_last_report}. Time when last updated: {goonhunter_timestamp_value}"
+                data=f"{goonhunter_current_map} {goonhunter_since_last_report} according to Goonhunter Goons are currently and since last update. Time when someone updated: {goonhunter_timestamp_value}"
             )
         await self.send_result_to_chat(
-                data=f"According to TarkovPal Goons are currently in: {tarkovpal_current_map}. Since last update: {tarkovpal_since_last_report}. Time when last updated: {tarkovpal_time}"
+                data=f"{tarkovpal_current_map} {tarkovpal_since_last_report} according to TarkovPal Goons are currently and since last update. Time when someone updated: {tarkovpal_time}"
             )
 
     async def send_result_to_chat(self, data):
